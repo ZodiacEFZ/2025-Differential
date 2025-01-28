@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -32,11 +33,10 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void robotInit() {
-    }
-
-    @Override
     public void driverStationConnected() {
+        this.bot.getDriverController().setRumble(GenericHID.RumbleType.kBothRumble, 0.5);
+        Timer.delay(0.5);
+        this.bot.getDriverController().setRumble(GenericHID.RumbleType.kBothRumble, 0.0);
     }
 
     /**
@@ -136,21 +136,5 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void testPeriodic() {
-    }
-
-    @Override
-    public void disabledExit() {
-    }
-
-    @Override
-    public void autonomousExit() {
-    }
-
-    @Override
-    public void teleopExit() {
-    }
-
-    @Override
-    public void testExit() {
     }
 }

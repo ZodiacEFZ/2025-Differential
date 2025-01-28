@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.libzodiac.drivetrain.ZDifferential;
+import frc.libzodiac.util.CommandUtil;
 import frc.libzodiac.util.Rotation2dSupplier;
 
 import java.util.function.DoubleSupplier;
@@ -59,7 +60,7 @@ public class RobotContainer {
         driver.a().onTrue(Commands.none());
         driver.b().onTrue(Commands.none());
         driver.x().onTrue(Commands.none());
-        driver.y().onTrue(Commands.runOnce(drivetrain::zeroHeading));
+        driver.y().onTrue(Commands.runOnce(this::zeroHeading));
         driver.leftBumper().onTrue(Commands.none());
         driver.rightBumper().onChange(Commands.runOnce(this::toggleDirectAngle));
         driver.start().onTrue(Commands.none());
@@ -104,9 +105,15 @@ public class RobotContainer {
                 this.drivetrain.driveCommand(directAngleInput, angularVelocityInput, this.drivetrain.getDirectAngle()));
     }
 
+    private void zeroHeading() {
+        this.drivetrain.zeroHeading();
+        CommandUtil.rumbleController(driver.getHID(), 0.5, 0.5);
+    }
+
     public void toggleDirectAngle() {
         this.drivetrain.toggleDirectAngle();
         this.setDriveCommand();
+        CommandUtil.rumbleController(driver.getHID(), 0.5, 0.5);
     }
 
     /**
@@ -127,5 +134,9 @@ public class RobotContainer {
         SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
         SmartDashboard.putNumber("Voltage", powerDistribution.getVoltage());
         SmartDashboard.putData("Drivetrain", drivetrain);
+    }
+
+    public CommandXboxController getDriverController() {
+        return driver;
     }
 }
