@@ -89,20 +89,20 @@ public class RobotContainer {
         /*
           Converts driver input into a ChassisSpeeds that is controlled by angular velocity.
          */
-        var angularVelocityInput = new ZDifferential.DifferentialInputStream(drivetrain, velocitySupplier).withRotation(
+        var angularVelocityInput = new ZDifferential.DifferentialInputStream(drivetrain, velocitySupplier).rotation(
                 driver::getLeftX).deadband(0.05);
 
         /*
           Clone's the angular velocity input stream and converts it to a direct angle input stream.
          */
-        var directAngleInput = new ZDifferential.DifferentialInputStream(drivetrain, velocitySupplier).withHeading(
+        var directAngleInput = new ZDifferential.DifferentialInputStream(drivetrain, velocitySupplier).heading(
                 new Rotation2dSupplier(() -> -driver.getRightX(), () -> -driver.getRightY())).deadband(0.05);
 
         /*
           Direct angle input can only be used in field centric mode.
          */
         this.drivetrain.setDefaultCommand(
-                this.drivetrain.driveCommand(directAngleInput, angularVelocityInput, this.drivetrain.getDirectAngle()));
+                this.drivetrain.getDriveCommand(directAngleInput, angularVelocityInput, this.drivetrain.getDirectAngle()));
     }
 
     private void zeroHeading() {
