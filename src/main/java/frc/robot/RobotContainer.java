@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
@@ -42,7 +43,7 @@ public class RobotContainer {
         differentialConfig.headingController = new PIDController(0.4, 0.01, 0.01);
         differentialConfig.headingController.setIZone(Math.PI / 4);
 
-        this.drivetrain = new ZDifferential(differentialConfig);
+        this.drivetrain = new ZDifferential(differentialConfig, new Pose2d()); //TODO: Set initial pose
 
         // Configure the button bindings
         this.configureButtonBindings();
@@ -102,7 +103,8 @@ public class RobotContainer {
           Direct angle input can only be used in field centric mode.
          */
         this.drivetrain.setDefaultCommand(
-                this.drivetrain.getDriveCommand(directAngleInput, angularVelocityInput, this.drivetrain.getDirectAngle()));
+                this.drivetrain.getDriveCommand(directAngleInput, angularVelocityInput,
+                        this.drivetrain.getDirectAngle()));
     }
 
     private void zeroHeading() {
