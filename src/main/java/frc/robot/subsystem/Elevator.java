@@ -20,7 +20,7 @@ public class Elevator extends SubsystemBase {
     }
 
     public void moveTo(double position) {
-        this.elevatorMotor.MotionMagic(position, feedforward);
+        this.elevatorMotor.MotionMagic(position, this.feedforward);
     }
 
     public void brake() {

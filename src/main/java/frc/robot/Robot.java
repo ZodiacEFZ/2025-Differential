@@ -29,7 +29,7 @@ public class Robot extends TimedRobot {
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
         this.bot = new RobotContainer();
-        disabledTimer = new Timer();
+        this.disabledTimer = new Timer();
     }
 
     @Override
@@ -45,8 +45,8 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledInit() {
         this.bot.setMotorBrake(true);
-        disabledTimer.reset();
-        disabledTimer.start();
+        this.disabledTimer.reset();
+        this.disabledTimer.start();
     }
 
     /**
@@ -57,7 +57,7 @@ public class Robot extends TimedRobot {
         Elastic.selectTab("Autonomous");
         this.bot.setMotorBrake(true);
 
-        autonomousCommand = this.bot.getAutonomousCommand();
+        this.autonomousCommand = this.bot.getAutonomousCommand();
 
         /*
          * String autoSelected = SmartDashboard.getString("Auto Selector",
@@ -67,8 +67,8 @@ public class Robot extends TimedRobot {
          */
 
         // schedule the autonomous command (example)
-        if (autonomousCommand != null) {
-            autonomousCommand.schedule();
+        if (this.autonomousCommand != null) {
+            this.autonomousCommand.schedule();
         }
     }
 
@@ -78,8 +78,8 @@ public class Robot extends TimedRobot {
         // teleop starts running. If you want the autonomous to
         // continue until interrupted by another command, remove
         // this line or comment it out.
-        if (autonomousCommand != null) {
-            autonomousCommand.cancel();
+        if (this.autonomousCommand != null) {
+            this.autonomousCommand.cancel();
         }
 
         Elastic.selectTab("Teleoperated");
@@ -111,9 +111,9 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledPeriodic() {
-        if (disabledTimer.hasElapsed(1)) {
+        if (this.disabledTimer.hasElapsed(1)) {
             this.bot.setMotorBrake(false);
-            disabledTimer.stop();
+            this.disabledTimer.stop();
         }
     }
 

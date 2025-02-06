@@ -34,8 +34,6 @@ public class RobotContainer {
         differentialConfig.leftFollower = 2;
         differentialConfig.rightLeader = 3;
         differentialConfig.rightFollower = 4;
-        differentialConfig.leftEncoder = 5;
-        differentialConfig.rightEncoder = 6;
 
         differentialConfig.gyro = 0;
 
@@ -58,14 +56,14 @@ public class RobotContainer {
      * {@link JoystickButton}.
      */
     private void configureButtonBindings() {
-        driver.a().onTrue(Commands.none());
-        driver.b().onTrue(Commands.none());
-        driver.x().onTrue(Commands.none());
-        driver.y().onTrue(Commands.runOnce(this::zeroHeading));
-        driver.leftBumper().onTrue(Commands.none());
-        driver.rightBumper().onChange(Commands.runOnce(this::toggleDirectAngle));
-        driver.start().onTrue(Commands.none());
-        driver.back().onTrue(Commands.none());
+        this.driver.a().onTrue(Commands.none());
+        this.driver.b().onTrue(Commands.none());
+        this.driver.x().onTrue(Commands.none());
+        this.driver.y().onTrue(Commands.runOnce(this::zeroHeading));
+        this.driver.leftBumper().onTrue(Commands.none());
+        this.driver.rightBumper().onChange(Commands.runOnce(this::toggleDirectAngle));
+        this.driver.start().onTrue(Commands.none());
+        this.driver.back().onTrue(Commands.none());
     }
 
     public void setDirectAngle(boolean directAngle) {
@@ -75,8 +73,8 @@ public class RobotContainer {
 
     private void setDriveCommand() {
         DoubleSupplier velocitySupplier = () -> {
-            double forward = MathUtil.applyDeadband(driver.getRightTriggerAxis(), 0.05);
-            double reverse = MathUtil.applyDeadband(driver.getLeftTriggerAxis(), 0.05);
+            double forward = MathUtil.applyDeadband(this.driver.getRightTriggerAxis(), 0.05);
+            double reverse = MathUtil.applyDeadband(this.driver.getLeftTriggerAxis(), 0.05);
             if (forward != 0 && reverse != 0) {
                 double velocity = forward - reverse;
                 if (Math.abs(velocity) > 0.5) {
@@ -90,14 +88,14 @@ public class RobotContainer {
         /*
           Converts driver input into a ChassisSpeeds that is controlled by angular velocity.
          */
-        var angularVelocityInput = new ZDifferential.DifferentialInputStream(drivetrain, velocitySupplier).rotation(
-                driver::getLeftX).deadband(0.05);
+        var angularVelocityInput = new ZDifferential.InputStream(this.drivetrain, velocitySupplier).rotation(
+                this.driver::getLeftX).deadband(0.05);
 
         /*
           Clone's the angular velocity input stream and converts it to a direct angle input stream.
          */
-        var directAngleInput = new ZDifferential.DifferentialInputStream(drivetrain, velocitySupplier).heading(
-                new Rotation2dSupplier(() -> -driver.getRightX(), () -> -driver.getRightY())).deadband(0.05);
+        var directAngleInput = new ZDifferential.InputStream(this.drivetrain, velocitySupplier).heading(
+                new Rotation2dSupplier(() -> -this.driver.getRightX(), () -> -this.driver.getRightY())).deadband(0.05);
 
         /*
           Direct angle input can only be used in field centric mode.
@@ -109,13 +107,13 @@ public class RobotContainer {
 
     private void zeroHeading() {
         this.drivetrain.zeroHeading();
-        CommandUtil.rumbleController(driver.getHID(), 0.5, 0.5);
+        CommandUtil.rumbleController(this.driver.getHID(), 0.5, 0.5);
     }
 
     public void toggleDirectAngle() {
         this.drivetrain.toggleDirectAngle();
         this.setDriveCommand();
-        CommandUtil.rumbleController(driver.getHID(), 0.5, 0.5);
+        CommandUtil.rumbleController(this.driver.getHID(), 0.5, 0.5);
     }
 
     /**
@@ -129,16 +127,16 @@ public class RobotContainer {
     }
 
     public void setMotorBrake(boolean brake) {
-        drivetrain.setMotorBrake(brake);
+        this.drivetrain.setMotorBrake(brake);
     }
 
     public void updateDashboard() {
         SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
-        SmartDashboard.putNumber("Voltage", powerDistribution.getVoltage());
-        SmartDashboard.putData("Drivetrain", drivetrain);
+        SmartDashboard.putNumber("Voltage", this.powerDistribution.getVoltage());
+        SmartDashboard.putData("Drivetrain", this.drivetrain);
     }
 
     public CommandXboxController getDriverController() {
-        return driver;
+        return this.driver;
     }
 }

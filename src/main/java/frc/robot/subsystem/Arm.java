@@ -29,6 +29,8 @@ public class Arm extends SubsystemBase {
 
         FeedbackConfigs feedbackConfigs = new FeedbackConfigs();
         feedbackConfigs.RotorToSensorRatio = 1;
+        feedbackConfigs.SensorToMechanismRatio = 1; //TODO
+        this.armMotor.setFeedbackConfigs(feedbackConfigs);
 
         MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs();
         motionMagicConfigs.MotionMagicCruiseVelocity = 50;
