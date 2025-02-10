@@ -20,9 +20,12 @@ import frc.libzodiac.util.Rotation2dSupplier;
 import java.util.function.DoubleSupplier;
 
 public class RobotContainer {
+    // The driver's controller
     private final CommandXboxController driver = new CommandXboxController(0);
+    // The robot's subsystems
     private final Differential drivetrain;
     private final PowerDistribution powerDistribution = new PowerDistribution();
+
     private final SendableChooser<Command> pathPlannerAutoChooser;
 
     public RobotContainer() {
@@ -50,7 +53,7 @@ public class RobotContainer {
 
         // Configure the button bindings
         this.configureButtonBindings();
-        this.setDirectAngle(true);
+        this.drivetrain.setDirectAngle(true);
         this.setDriveCommand();
 
         // Build an auto chooser
@@ -73,11 +76,6 @@ public class RobotContainer {
         this.driver.rightBumper().onChange(Commands.runOnce(this::toggleDirectAngle));
         this.driver.start().onTrue(Commands.none());
         this.driver.back().onTrue(Commands.none());
-    }
-
-    public void setDirectAngle(boolean directAngle) {
-        this.drivetrain.setDirectAngle(directAngle);
-        this.setDriveCommand();
     }
 
     private void setDriveCommand() {
@@ -110,7 +108,7 @@ public class RobotContainer {
           Direct angle input can only be used in field centric mode.
          */
         this.drivetrain.setDefaultCommand(this.drivetrain.getDriveCommand(directAngleInput, angularVelocityInput,
-                this.drivetrain.getDirectAngle()));
+                this.drivetrain::getDirectAngle));
     }
 
     private void zeroHeading() {
@@ -120,7 +118,6 @@ public class RobotContainer {
 
     public void toggleDirectAngle() {
         this.drivetrain.toggleDirectAngle();
-        this.setDriveCommand();
         CommandUtil.rumbleController(this.driver.getHID(), 0.5, 0.5);
     }
 
