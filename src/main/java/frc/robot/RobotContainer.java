@@ -6,12 +6,14 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
-import frc.libzodiac.drivetrain.ZDifferential;
+import frc.libzodiac.drivetrain.Differential;
+import frc.libzodiac.drivetrain.PathPlanner;
 import frc.libzodiac.util.CommandUtil;
 import frc.libzodiac.util.Rotation2dSupplier;
 
@@ -19,14 +21,15 @@ import java.util.function.DoubleSupplier;
 
 public class RobotContainer {
     private final CommandXboxController driver = new CommandXboxController(0);
-    private final ZDifferential drivetrain;
+    private final Differential drivetrain;
     private final PowerDistribution powerDistribution = new PowerDistribution();
+    private final SendableChooser<Command> pathPlannerAutoChooser;
 
     public RobotContainer() {
-        ZDifferential.Config differentialConfig = new ZDifferential.Config();
+        Differential.Config differentialConfig = new Differential.Config();
         differentialConfig.ROBOT_WIDTH = 0.762;
         differentialConfig.MAX_SPEED = 3;
-        differentialConfig.MAX_ANGULAR_SPEED = 2 * Math.PI;
+        differentialConfig.MAX_ANGULAR_VELOCITY = 2 * Math.PI;
         differentialConfig.GEAR_RATIO = 8.46;
         differentialConfig.WHEEL_RADIUS = 0.0508;
 
@@ -41,12 +44,18 @@ public class RobotContainer {
         differentialConfig.headingController = new PIDController(0.4, 0.01, 0.01);
         differentialConfig.headingController.setIZone(Math.PI / 4);
 
-        this.drivetrain = new ZDifferential(differentialConfig, new Pose2d()); //TODO: Set initial pose
+        this.drivetrain = new Differential(differentialConfig, new Pose2d()); //TODO: Set initial pose
+
+        PathPlanner.initInstance(this.drivetrain);
 
         // Configure the button bindings
         this.configureButtonBindings();
         this.setDirectAngle(true);
         this.setDriveCommand();
+
+        // Build an auto chooser
+        pathPlannerAutoChooser = PathPlanner.getInstance().buildAutoChooser();
+        SmartDashboard.putData("Auto Chooser", pathPlannerAutoChooser);
     }
 
     /**
@@ -88,21 +97,20 @@ public class RobotContainer {
         /*
           Converts driver input into a ChassisSpeeds that is controlled by angular velocity.
          */
-        var angularVelocityInput = new ZDifferential.InputStream(this.drivetrain, velocitySupplier).rotation(
+        var angularVelocityInput = new Differential.InputStream(this.drivetrain, velocitySupplier).rotation(
                 this.driver::getLeftX).deadband(0.05);
 
         /*
           Clone's the angular velocity input stream and converts it to a direct angle input stream.
          */
-        var directAngleInput = new ZDifferential.InputStream(this.drivetrain, velocitySupplier).heading(
+        var directAngleInput = new Differential.InputStream(this.drivetrain, velocitySupplier).heading(
                 new Rotation2dSupplier(() -> -this.driver.getRightX(), () -> -this.driver.getRightY())).deadband(0.05);
 
         /*
           Direct angle input can only be used in field centric mode.
          */
-        this.drivetrain.setDefaultCommand(
-                this.drivetrain.getDriveCommand(directAngleInput, angularVelocityInput,
-                        this.drivetrain.getDirectAngle()));
+        this.drivetrain.setDefaultCommand(this.drivetrain.getDriveCommand(directAngleInput, angularVelocityInput,
+                this.drivetrain.getDirectAngle()));
     }
 
     private void zeroHeading() {
@@ -122,8 +130,7 @@ public class RobotContainer {
      * @return the command to run in autonomous
      */
     public Command getAutonomousCommand() {
-        return null;
-        //todo
+        return this.pathPlannerAutoChooser.getSelected();
     }
 
     public void setMotorBrake(boolean brake) {
@@ -134,6 +141,7 @@ public class RobotContainer {
         SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
         SmartDashboard.putNumber("Voltage", this.powerDistribution.getVoltage());
         SmartDashboard.putData("Drivetrain", this.drivetrain);
+        SmartDashboard.putData("Field", this.drivetrain.getField());
     }
 
     public CommandXboxController getDriverController() {

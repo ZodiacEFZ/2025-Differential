@@ -25,18 +25,18 @@ public class Arm extends SubsystemBase {
         slot0Configs.kP = 0.1;
         slot0Configs.kI = 0;
         slot0Configs.kD = 0;
-        this.armMotor.setSlot0Configs(slot0Configs);
+        this.armMotor.applyConfiguration(slot0Configs);
 
         FeedbackConfigs feedbackConfigs = new FeedbackConfigs();
         feedbackConfigs.RotorToSensorRatio = 1;
         feedbackConfigs.SensorToMechanismRatio = 1; //TODO
-        this.armMotor.setFeedbackConfigs(feedbackConfigs);
+        this.armMotor.applyConfiguration(feedbackConfigs);
 
         MotionMagicConfigs motionMagicConfigs = new MotionMagicConfigs();
         motionMagicConfigs.MotionMagicCruiseVelocity = 50;
         motionMagicConfigs.MotionMagicAcceleration = 100;
         motionMagicConfigs.MotionMagicJerk = 1000;
-        this.armMotor.setMotionMagicConfigs(motionMagicConfigs);
+        this.armMotor.applyConfiguration(motionMagicConfigs);
 
         this.armMotor.shutdown();
         Timer.delay(3);
