@@ -40,7 +40,7 @@ public class Arm extends SubsystemBase {
 
         this.armMotor.shutdown();
         Timer.delay(3);
-        this.armMotor.setPosition(0);
+        this.armMotor.setRelativeEncoderPosition(0);
         this.armMotor.brake();
     }
 

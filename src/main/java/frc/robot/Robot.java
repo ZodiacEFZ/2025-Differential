@@ -4,12 +4,12 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.libzodiac.ui.elastic.elasticlib.Elastic;
+import frc.libzodiac.ui.Elastic;
+import frc.libzodiac.util.CommandUtil;
 
 /**
  * The methods in this class are called automatically corresponding to each mode, as described in
@@ -34,9 +34,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void driverStationConnected() {
-        this.bot.getDriverController().setRumble(GenericHID.RumbleType.kBothRumble, 0.5);
-        Timer.delay(0.5);
-        this.bot.getDriverController().setRumble(GenericHID.RumbleType.kBothRumble, 0.0);
+        CommandUtil.rumbleController(this.bot.getDriverController().getHID(), 0.5, 0.5);
     }
 
     /**
@@ -55,16 +53,8 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousInit() {
         Elastic.selectTab("Autonomous");
-        this.bot.setMotorBrake(true);
 
         this.autonomousCommand = this.bot.getAutonomousCommand();
-
-        /*
-         * String autoSelected = SmartDashboard.getString("Auto Selector",
-         * "Default"); switch(autoSelected) { case "My Auto": autonomousCommand
-         * = new MyAutoCommand(); break; case "Default Auto": default:
-         * autonomousCommand = new ExampleCommand(); break; }
-         */
 
         // schedule the autonomous command (example)
         if (this.autonomousCommand != null) {

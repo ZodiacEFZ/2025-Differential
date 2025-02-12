@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -33,17 +34,25 @@ public class RobotContainer {
         differentialConfig.ROBOT_WIDTH = 0.762;
         differentialConfig.MAX_SPEED = 3;
         differentialConfig.MAX_ANGULAR_VELOCITY = 2 * Math.PI;
-        differentialConfig.GEAR_RATIO = 8.46;
-        differentialConfig.WHEEL_RADIUS = 0.0508;
+        differentialConfig.GEAR_RATIO = 1;
+        differentialConfig.WHEEL_RADIUS = 0.0762;
 
         differentialConfig.leftLeader = 1;
         differentialConfig.leftFollower = 2;
         differentialConfig.rightLeader = 3;
         differentialConfig.rightFollower = 4;
 
+        differentialConfig.leftLeaderInverted = false;
+        differentialConfig.leftFollowerInverted = false;
+        differentialConfig.rightLeaderInverted = true;
+        differentialConfig.rightFollowerInverted = true;
+
+        differentialConfig.leftEncoderPhase = true;
+        differentialConfig.rightEncoderPhase = true;
+
         differentialConfig.gyro = 0;
 
-        differentialConfig.pidController = new PIDController(1, 0, 0);
+        differentialConfig.pidController = new PIDController(0.1, 0.002, 0.5);
         differentialConfig.headingController = new PIDController(0.4, 0.01, 0.01);
         differentialConfig.headingController.setIZone(Math.PI / 4);
 
@@ -59,6 +68,12 @@ public class RobotContainer {
         // Build an auto chooser
         pathPlannerAutoChooser = PathPlanner.getInstance().buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", pathPlannerAutoChooser);
+
+        try (var camera = CameraServer.startAutomaticCapture()) {
+            camera.setExposureAuto();
+            camera.setWhiteBalanceAuto();
+        }
+
     }
 
     /**
@@ -96,13 +111,13 @@ public class RobotContainer {
           Converts driver input into a ChassisSpeeds that is controlled by angular velocity.
          */
         var angularVelocityInput = new Differential.InputStream(this.drivetrain, velocitySupplier).rotation(
-                this.driver::getLeftX).deadband(0.05);
+                () -> -this.driver.getLeftX()).deadband(0.05);
 
         /*
           Clone's the angular velocity input stream and converts it to a direct angle input stream.
          */
         var directAngleInput = new Differential.InputStream(this.drivetrain, velocitySupplier).heading(
-                new Rotation2dSupplier(() -> -this.driver.getRightX(), () -> -this.driver.getRightY())).deadband(0.05);
+                new Rotation2dSupplier(() -> -this.driver.getRightY(), () -> -this.driver.getRightX())).deadband(0.05);
 
         /*
           Direct angle input can only be used in field centric mode.
