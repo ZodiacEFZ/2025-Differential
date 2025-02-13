@@ -1,5 +1,7 @@
 package frc.robot.subsystem;
 
+import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -13,7 +15,8 @@ public class Elevator extends SubsystemBase {
     public Elevator() {
         this.elevatorMotor.factoryDefault();
         this.elevatorMotorFollower.factoryDefault();
-        this.elevatorMotor.setMotionMagicConfig(0.1, 0, 0, 0.01, Math.PI * 10, Math.PI * 10, 3);
+        this.elevatorMotor.setMotionMagicConfig(0.1, 0, 0, 0.01, Units.RadiansPerSecond.of(Math.PI * 10),
+                Units.RadiansPerSecondPerSecond.of(Math.PI * 10), 3);
 
         this.elevatorMotor.shutdown();
         Timer.delay(3);
@@ -25,21 +28,23 @@ public class Elevator extends SubsystemBase {
         this.elevatorMotor.setPhase(false); //TODO
     }
 
-    public void moveTo(double position) {
-        this.elevatorMotor.MotionMagic(position, this.getFeedforward());
+    @Override
+    public void periodic() {
+        if (this.limitSwitch.get()) {
+            this.elevatorMotor.resetPosition();
+        }
+    }
+
+    public void moveTo(Position position) {
+        this.elevatorMotor.MotionMagic(position.getMotorPosition(), this.getFeedforward());
     }
 
     private double getFeedforward() {
         return this.getFeedforward(this.elevatorMotor.getPosition());
     }
 
-    private double getFeedforward(double position) {
-        if (position <= 256) {
-            return 0;
-        }
-        if (position < 4096) {
-            return 0.1;
-        }
+    private double getFeedforward(Angle motorPosition) {
+        //TODO: measure feedforward
         return 0;
     }
 
@@ -47,8 +52,20 @@ public class Elevator extends SubsystemBase {
         this.elevatorMotor.brake();
     }
 
-    public double getPosition() {
-        return this.elevatorMotor.getPosition();
+    public Position getPosition() {
+        return new Position(this.elevatorMotor.getPosition());
+    }
+
+    public static class Position {
+        private final Angle motorPosition;
+
+        public Position(Angle motorPosition) {
+            this.motorPosition = motorPosition;
+        }
+
+        private Angle getMotorPosition() {
+            return motorPosition;
+        }
     }
 }
 

@@ -4,13 +4,13 @@ import com.ctre.phoenix6.configs.FeedbackConfigs;
 import com.ctre.phoenix6.configs.MotionMagicConfigs;
 import com.ctre.phoenix6.configs.Slot0Configs;
 import com.ctre.phoenix6.signals.GravityTypeValue;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.libzodiac.hardware.TalonFXMotor;
 
 public class Arm extends SubsystemBase {
     TalonFXMotor armMotor = new TalonFXMotor(8);
-    double feedforward = 0;
 
     public Arm() {
         this.armMotor.factoryDefault();
@@ -40,24 +40,32 @@ public class Arm extends SubsystemBase {
 
         this.armMotor.shutdown();
         Timer.delay(3);
-        this.armMotor.setRelativeEncoderPosition(0);
+        this.armMotor.resetRelativeEncoderPosition();
         this.armMotor.brake();
     }
 
-    public void moveTo(double position) {
-        this.armMotor.MotionMagicPosition(position);
+    public void moveTo(Position position) {
+        this.armMotor.MotionMagicPosition(position.getMotorPosition());
     }
 
     public void brake() {
         this.armMotor.brake();
     }
 
-    public double getPosition() {
+    public Angle getPosition() {
         return this.armMotor.getPosition();
     }
 
-    public void setFeedforward(double feedforward) {
-        this.feedforward = feedforward;
+    public static class Position {
+        private final Angle motorPosition;
+
+        public Position(Angle motorPosition) {
+            this.motorPosition = motorPosition;
+        }
+
+        private Angle getMotorPosition() {
+            return motorPosition;
+        }
     }
 }
 
