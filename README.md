@@ -5,7 +5,7 @@
 ### Clone
 
 ```
-git clone --recurse-submodule https://github.com/ZodiacEFZ/Swerve-dev.git
+git clone --recurse-submodule https://github.com/ZodiacEFZ/2025-Differential.git
 ```
 
 ## TODO List
