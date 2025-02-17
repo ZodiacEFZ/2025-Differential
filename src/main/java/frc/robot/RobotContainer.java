@@ -17,6 +17,7 @@ import frc.libzodiac.drivetrain.Differential;
 import frc.libzodiac.drivetrain.PathPlanner;
 import frc.libzodiac.util.CommandUtil;
 import frc.libzodiac.util.Rotation2dSupplier;
+import frc.robot.subsystem.Intake;
 
 import java.util.function.DoubleSupplier;
 
@@ -26,6 +27,7 @@ public class RobotContainer {
     // The robot's subsystems
     private final Differential drivetrain;
     private final PowerDistribution powerDistribution = new PowerDistribution();
+    private final Intake intake = new Intake();
 
     private final SendableChooser<Command> pathPlannerAutoChooser;
 
@@ -73,7 +75,6 @@ public class RobotContainer {
             camera.setExposureAuto();
             camera.setWhiteBalanceAuto();
         }
-
     }
 
     /**
@@ -83,7 +84,7 @@ public class RobotContainer {
      * {@link JoystickButton}.
      */
     private void configureButtonBindings() {
-        this.driver.a().onTrue(Commands.none());
+        this.driver.a().onTrue(this.intake.getIntakeCommand(1));
         this.driver.b().onTrue(Commands.none());
         this.driver.x().onTrue(Commands.none());
         this.driver.y().onTrue(Commands.runOnce(this::zeroHeading));
