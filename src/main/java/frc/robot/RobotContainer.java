@@ -17,6 +17,7 @@ import frc.libzodiac.drivetrain.Differential;
 import frc.libzodiac.drivetrain.PathPlanner;
 import frc.libzodiac.util.CommandUtil;
 import frc.libzodiac.util.Rotation2dSupplier;
+import frc.robot.subsystem.Elevator;
 import frc.robot.subsystem.Intake;
 
 import java.util.function.DoubleSupplier;
@@ -28,6 +29,7 @@ public class RobotContainer {
     private final Differential drivetrain;
     private final PowerDistribution powerDistribution = new PowerDistribution();
     private final Intake intake = new Intake();
+    private final Elevator elevator = new Elevator();
 
     private final SendableChooser<Command> autoChooser;
 
@@ -35,7 +37,7 @@ public class RobotContainer {
         Differential.Config differentialConfig = new Differential.Config();
         differentialConfig.ROBOT_WIDTH = 0.762;
         differentialConfig.MAX_SPEED = 3;
-        differentialConfig.MAX_ANGULAR_VELOCITY = 2 * Math.PI;
+        differentialConfig.MAX_ANGULAR_VELOCITY = Math.PI;
         differentialConfig.GEAR_RATIO = 1;
         differentialConfig.WHEEL_RADIUS = 0.0762;
 
@@ -155,6 +157,7 @@ public class RobotContainer {
         SmartDashboard.putNumber("Voltage", this.powerDistribution.getVoltage());
         SmartDashboard.putData("Drivetrain", this.drivetrain);
         SmartDashboard.putData("Field", this.drivetrain.getField());
+        SmartDashboard.putData("Elevator", this.elevator);
     }
 
     public CommandXboxController getDriverController() {

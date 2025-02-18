@@ -57,6 +57,128 @@
                 }
               }
             ]
+          },
+          {
+            "title": "Elevator",
+            "x": 1280.0,
+            "y": 0.0,
+            "width": 256.0,
+            "height": 768.0,
+            "type": "List Layout",
+            "properties": {
+              "label_position": "TOP"
+            },
+            "children": [
+              {
+                "title": "Limit Switch",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Boolean Box",
+                "properties": {
+                  "topic": "/SmartDashboard/Elevator/Limit Switch",
+                  "period": 0.06,
+                  "data_type": "boolean",
+                  "true_color": 4283215696,
+                  "false_color": 4294198070,
+                  "true_icon": "None",
+                  "false_icon": "None"
+                }
+              },
+              {
+                "title": "Position",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Text Display",
+                "properties": {
+                  "topic": "/SmartDashboard/Elevator/Position",
+                  "period": 0.06,
+                  "data_type": "double",
+                  "show_submit_button": false
+                }
+              },
+              {
+                "title": "Move to Bottom",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Move to Bottom",
+                  "period": 0.06,
+                  "show_type": true
+                }
+              },
+              {
+                "title": "Move to L1",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Move to L1",
+                  "period": 0.06,
+                  "show_type": true
+                }
+              },
+              {
+                "title": "Move to L2",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Move to L2",
+                  "period": 0.06,
+                  "show_type": true
+                }
+              },
+              {
+                "title": "Move to L3",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Move to L3",
+                  "period": 0.06,
+                  "show_type": true
+                }
+              },
+              {
+                "title": "Move to L4",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Move to L4",
+                  "period": 0.06,
+                  "show_type": true
+                }
+              },
+              {
+                "title": "Reset",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 256.0,
+                "height": 128.0,
+                "type": "Command",
+                "properties": {
+                  "topic": "/SmartDashboard/Reset",
+                  "period": 0.06,
+                  "show_type": true
+                }
+              }
+            ]
           }
         ],
         "containers": [
@@ -95,30 +217,9 @@
             }
           },
           {
-            "title": "Heading",
-            "x": 1280.0,
-            "y": 512.0,
-            "width": 256.0,
-            "height": 256.0,
-            "type": "Radial Gauge",
-            "properties": {
-              "topic": "/SmartDashboard/Drivetrain/Heading",
-              "period": 0.06,
-              "data_type": "double",
-              "start_angle": 0.0,
-              "end_angle": 360.0,
-              "min_value": 0.0,
-              "max_value": 360.0,
-              "number_of_labels": 8,
-              "wrap_value": true,
-              "show_pointer": true,
-              "show_ticks": true
-            }
-          },
-          {
             "title": "Auto Chooser",
-            "x": 1280.0,
-            "y": 0.0,
+            "x": 0.0,
+            "y": 576.0,
             "width": 256.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
@@ -149,59 +250,36 @@
             }
           },
           {
-            "title": "Left Speed",
-            "x": 512.0,
+            "title": "Differential Drive",
+            "x": 768.0,
             "y": 448.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
+            "width": 256.0,
+            "height": 256.0,
+            "type": "DifferentialDrive",
             "properties": {
-              "topic": "/SmartDashboard/Left Speed",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
+              "topic": "/SmartDashboard/Differential Drive",
+              "period": 0.06
             }
           },
           {
-            "title": "Right Speed",
-            "x": 640.0,
+            "title": "Heading",
+            "x": 1024.0,
             "y": 448.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
+            "width": 256.0,
+            "height": 256.0,
+            "type": "Radial Gauge",
             "properties": {
-              "topic": "/SmartDashboard/Right Speed",
-              "period": 0.06,
+              "topic": "/SmartDashboard/Drivetrain/Heading",
+              "period": 0.033,
               "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Left Speed Encoder",
-            "x": 512.0,
-            "y": 576.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Left Speed Encoder",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Right Speed Encoder",
-            "x": 640.0,
-            "y": 576.0,
-            "width": 128.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/SmartDashboard/Right Speed Encoder",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
+              "start_angle": -140.0,
+              "end_angle": 140.0,
+              "min_value": 0.0,
+              "max_value": 100.0,
+              "number_of_labels": 8,
+              "wrap_value": false,
+              "show_pointer": true,
+              "show_ticks": true
             }
           }
         ]
