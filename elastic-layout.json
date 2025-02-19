@@ -9,9 +9,9 @@
           {
             "title": "Drivetrain",
             "x": 0.0,
-            "y": 256.0,
+            "y": 384.0,
             "width": 256.0,
-            "height": 320.0,
+            "height": 256.0,
             "type": "List Layout",
             "properties": {
               "label_position": "TOP"
@@ -26,19 +26,6 @@
                 "type": "Toggle Switch",
                 "properties": {
                   "topic": "/SmartDashboard/Drivetrain/Direct Angle",
-                  "period": 0.06,
-                  "data_type": "boolean"
-                }
-              },
-              {
-                "title": "Field Centric",
-                "x": 0.0,
-                "y": 0.0,
-                "width": 128.0,
-                "height": 128.0,
-                "type": "Toggle Switch",
-                "properties": {
-                  "topic": "/SmartDashboard/Drivetrain/Field Centric",
                   "period": 0.06,
                   "data_type": "boolean"
                 }
@@ -185,9 +172,9 @@
           {
             "title": "Voltage",
             "x": 0.0,
-            "y": 128.0,
-            "width": 256.0,
-            "height": 128.0,
+            "y": 192.0,
+            "width": 320.0,
+            "height": 192.0,
             "type": "Voltage View",
             "properties": {
               "topic": "/SmartDashboard/Voltage",
@@ -204,8 +191,8 @@
             "title": "Match Time",
             "x": 0.0,
             "y": 0.0,
-            "width": 256.0,
-            "height": 128.0,
+            "width": 320.0,
+            "height": 192.0,
             "type": "Match Time",
             "properties": {
               "topic": "/SmartDashboard/Match Time",
@@ -219,7 +206,7 @@
           {
             "title": "Auto Chooser",
             "x": 0.0,
-            "y": 576.0,
+            "y": 640.0,
             "width": 256.0,
             "height": 128.0,
             "type": "ComboBox Chooser",
@@ -233,8 +220,8 @@
             "title": "Field",
             "x": 320.0,
             "y": 0.0,
-            "width": 960.0,
-            "height": 448.0,
+            "width": 832.0,
+            "height": 384.0,
             "type": "Field",
             "properties": {
               "topic": "/SmartDashboard/Field",
@@ -251,8 +238,8 @@
           },
           {
             "title": "Differential Drive",
-            "x": 768.0,
-            "y": 448.0,
+            "x": 256.0,
+            "y": 384.0,
             "width": 256.0,
             "height": 256.0,
             "type": "DifferentialDrive",
@@ -263,21 +250,21 @@
           },
           {
             "title": "Heading",
-            "x": 1024.0,
-            "y": 448.0,
+            "x": 512.0,
+            "y": 384.0,
             "width": 256.0,
             "height": 256.0,
             "type": "Radial Gauge",
             "properties": {
               "topic": "/SmartDashboard/Drivetrain/Heading",
-              "period": 0.033,
+              "period": 0.06,
               "data_type": "double",
-              "start_angle": -140.0,
-              "end_angle": 140.0,
-              "min_value": 0.0,
-              "max_value": 100.0,
+              "start_angle": -180.0,
+              "end_angle": 180.0,
+              "min_value": -180.0,
+              "max_value": 180.0,
               "number_of_labels": 8,
-              "wrap_value": false,
+              "wrap_value": true,
               "show_pointer": true,
               "show_ticks": true
             }

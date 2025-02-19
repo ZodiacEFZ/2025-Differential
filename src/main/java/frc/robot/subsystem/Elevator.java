@@ -13,35 +13,50 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.libzodiac.hardware.TalonSRXMotor;
 
 public class Elevator extends SubsystemBase {
-    TalonSRXMotor elevatorMotor = new TalonSRXMotor(11);
-    TalonSRXMotor elevatorMotorFollower = new TalonSRXMotor(12);
+    TalonSRXMotor elevatorLeftLeader = new TalonSRXMotor(5);
+    TalonSRXMotor elevatorLeftFollower = new TalonSRXMotor(6);
+    TalonSRXMotor elevatorRightFollower1 = new TalonSRXMotor(7);
+    TalonSRXMotor elevatorRightFollower2 = new TalonSRXMotor(8);
     DigitalInput limitSwitch = new DigitalInput(0);
+    Position targetPosition;
 
     public Elevator() {
-        this.elevatorMotor.factoryDefault();
-        this.elevatorMotorFollower.factoryDefault();
-        this.elevatorMotor.setMotionMagicConfig(0.1, 0, 0, 0.01, Units.RadiansPerSecond.of(Math.PI * 10),
-                Units.RadiansPerSecondPerSecond.of(Math.PI * 10), 3);
+        this.elevatorLeftLeader.factoryDefault();
+        this.elevatorLeftFollower.factoryDefault();
+        this.elevatorRightFollower1.factoryDefault();
+        this.elevatorRightFollower2.factoryDefault();
+        this.elevatorLeftLeader.setMotionMagicConfig(0.1, 0, 0, 0.01, Units.RadiansPerSecond.of(Math.PI),
+                Units.RadiansPerSecondPerSecond.of(Math.PI), 3);
 
-        this.elevatorMotor.shutdown();
+        this.elevatorLeftLeader.setInverted(false);
+        this.elevatorLeftLeader.setPhase(false);
+
+        this.elevatorLeftFollower.follow(elevatorLeftLeader);
+        this.elevatorRightFollower1.follow(elevatorLeftFollower, true);
+        this.elevatorRightFollower2.follow(elevatorLeftLeader, true);
+
+        this.elevatorLeftLeader.shutdown();
         Timer.delay(3);
-        this.elevatorMotor.brake();
-
-        this.elevatorMotor.resetPosition();
-        this.elevatorMotor.setInverted(false); //TODO
-        this.elevatorMotorFollower.follow(this.elevatorMotor, false);
-        this.elevatorMotor.setPhase(false); //TODO
+        this.elevatorLeftLeader.brake();
+        this.elevatorLeftLeader.resetPosition();
+        this.targetPosition = null;
     }
 
     @Override
     public void periodic() {
         if (this.limitSwitch.get()) {
-            this.elevatorMotor.resetPosition();
+            this.elevatorLeftLeader.resetPosition();
+        }
+        if (this.targetPosition != null) {
+            double feedforward = this.getFeedforward(this.targetPosition);
+            this.elevatorLeftLeader.MotionMagic(this.targetPosition.getSensorPosition(), feedforward);
+        } else {
+            this.elevatorLeftLeader.shutdown();
         }
     }
 
     public void moveTo(Position position) {
-        this.elevatorMotor.MotionMagic(position.getSensorPosition(), this.getFeedforward(position));
+        this.targetPosition = position;
     }
 
     public void moveTo(Distance height) {
@@ -62,15 +77,21 @@ public class Elevator extends SubsystemBase {
     }
 
     public void brake() {
-        this.elevatorMotor.brake();
+        this.elevatorLeftLeader.brake();
+        this.targetPosition = this.getPosition();
+    }
+
+    public void shutdown() {
+        this.elevatorLeftLeader.shutdown();
+        this.targetPosition = null;
     }
 
     public Position getPosition() {
-        return new Position(this.elevatorMotor.getPosition());
+        return new Position(this.elevatorLeftLeader.getPosition());
     }
 
     public Command getMoveCommand(Position position) {
-        return Commands.runOnce(() -> this.moveTo(position));
+        return runOnce(() -> this.moveTo(position));
     }
 
     @Override
@@ -86,10 +107,14 @@ public class Elevator extends SubsystemBase {
         SmartDashboard.putData("Move to L3", this.getMoveCommand(Level.L3.position));
         SmartDashboard.putData("Move to L4", this.getMoveCommand(Level.L4.position));
         SmartDashboard.putData("Reset", Commands.runOnce(this::reset).ignoringDisable(true));
+        SmartDashboard.putData("run", runOnce(() -> {
+            this.elevatorLeftLeader.power(0.2);
+        }));
     }
 
     public void reset() {
-        this.elevatorMotor.resetPosition();
+        this.elevatorLeftLeader.resetPosition();
+        this.targetPosition = null;
     }
 
     enum Level {
