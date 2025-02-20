@@ -63,7 +63,7 @@ public class RobotContainer {
         differentialConfig.headingController = new PIDController(0.4, 0.01, 0.01);
         differentialConfig.headingController.setIZone(Math.PI / 4);
 
-        this.drivetrain = new Differential(differentialConfig, new Pose2d()); //TODO: Set initial pose
+        this.drivetrain = new Differential(differentialConfig, new Pose2d()); // TODO: Set initial pose
 
         PathPlanner.initInstance(this.drivetrain);
 
@@ -82,7 +82,7 @@ public class RobotContainer {
         }
         //CameraServer.startAutomaticCapture()
 
-        //todo
+        // TODO
         //this.limelight = new Limelight(drivetrain);
     }
 

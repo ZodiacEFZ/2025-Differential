@@ -55,7 +55,6 @@ public class Outtake {
         return runOnce(this::switchOuttakeState);
     }
 
-    //todo: use voltage or current
     public void up() {
         runOnce(() -> this.outtakeMotor.power(0.3)).repeatedly().withTimeout(1).finallyDo(this.outtakeMotor::brake).schedule();
         isUp = true;
