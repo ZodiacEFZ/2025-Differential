@@ -18,6 +18,8 @@ import frc.libzodiac.drivetrain.PathPlanner;
 import frc.libzodiac.util.CommandUtil;
 import frc.libzodiac.util.Rotation2dSupplier;
 import frc.robot.subsystem.Elevator;
+import frc.robot.subsystem.Intake;
+import frc.robot.subsystem.Outtake;
 
 import java.util.function.DoubleSupplier;
 
@@ -29,6 +31,8 @@ public class RobotContainer {
     //private final Limelight limelight;
     private final PowerDistribution powerDistribution = new PowerDistribution();
     private final Elevator elevator = new Elevator();
+    private final Intake intake = new Intake();
+    private final Outtake outtake = new Outtake();
 
     private final SendableChooser<Command> autoChooser;
 
@@ -89,14 +93,14 @@ public class RobotContainer {
      * {@link JoystickButton}.
      */
     private void configureButtonBindings() {
-        this.driver.a().onTrue(Commands.none());
-        this.driver.b().onTrue(Commands.none());
-        this.driver.x().onTrue(Commands.none());
-        this.driver.y().onTrue(Commands.runOnce(this::zeroHeading));
+        this.driver.a().onTrue(this.outtake.getSwitchOuttakeStateCommand());
+        this.driver.b().onTrue(this.intake.getIntakeCommand()).onFalse(this.intake.getStopCommand());
+        this.driver.x().onTrue(this.intake.getOuttakeCommand()).onFalse(this.intake.getStopCommand());
+        this.driver.y().onTrue(Commands.none());
         this.driver.leftBumper().onTrue(Commands.none());
         this.driver.rightBumper().onChange(Commands.runOnce(this::toggleDirectAngle));
-        this.driver.start().onTrue(Commands.none());
-        this.driver.back().onTrue(Commands.none());
+        this.driver.start().onTrue(Commands.runOnce(this::zeroHeading));
+        this.driver.back().onTrue(this.outtake.getSwitchUpStateCommand());
     }
 
     private void setDriveCommand() {

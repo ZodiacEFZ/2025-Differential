@@ -5,8 +5,8 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.libzodiac.hardware.TalonFXMotor;
 
 public class Intake extends SubsystemBase {
-    TalonFXMotor leftMotor = new TalonFXMotor(5);
-    TalonFXMotor rightMotor = new TalonFXMotor(6);
+    TalonFXMotor leftMotor = new TalonFXMotor(10);
+    TalonFXMotor rightMotor = new TalonFXMotor(9);
 
     public Intake() {
         this.leftMotor.factoryDefault();
@@ -32,6 +32,18 @@ public class Intake extends SubsystemBase {
     public void stop() {
         this.leftMotor.brake();
         this.rightMotor.brake();
+    }
+
+    public Command getIntakeCommand() {
+        return runOnce(this::intake);
+    }
+
+    public Command getStopCommand() {
+        return runOnce(this::stop);
+    }
+
+    public Command getOuttakeCommand() {
+        return runOnce(this::outtake);
     }
 
     public Command getIntakeCommand(double seconds) {
