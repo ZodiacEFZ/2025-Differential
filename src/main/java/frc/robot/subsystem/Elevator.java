@@ -44,7 +44,7 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (this.limitSwitch.get()) {
+        if (this.atBottom()) {
             this.elevatorLeftLeader.resetPosition();
         }
         if (this.targetPosition != null) {
@@ -94,13 +94,17 @@ public class Elevator extends SubsystemBase {
         return runOnce(() -> this.moveTo(position));
     }
 
+    public boolean atBottom() {
+        return !this.limitSwitch.get();
+    }
+
     @Override
     public void initSendable(SendableBuilder builder) {
         builder.setSmartDashboardType("Elevator");
         builder.setActuator(true);
         builder.setSafeState(this::brake);
         builder.addDoubleProperty("Position", () -> this.getPosition().getHeight().in(Units.Meters), this::moveTo);
-        builder.addBooleanProperty("Limit Switch", this.limitSwitch::get, null);
+        builder.addBooleanProperty("At Bottom", this::atBottom, null);
         SmartDashboard.putData("Move to Bottom", this.getMoveCommand(Level.BOTTOM.position));
         SmartDashboard.putData("Move to L1", this.getMoveCommand(Level.L1.position));
         SmartDashboard.putData("Move to L2", this.getMoveCommand(Level.L2.position));
