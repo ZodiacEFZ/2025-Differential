@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.libzodiac.drivetrain.Differential;
 import frc.libzodiac.drivetrain.PathPlanner;
+import frc.libzodiac.hardware.Limelight;
 import frc.libzodiac.util.CommandUtil;
 import frc.libzodiac.util.Rotation2dSupplier;
 import frc.robot.subsystem.Elevator;
@@ -28,7 +29,7 @@ public class RobotContainer {
     private final CommandXboxController driver = new CommandXboxController(0);
     // The robot's subsystems
     private final Differential drivetrain;
-    //private final Limelight limelight;
+    private final Limelight limelight;
     private final PowerDistribution powerDistribution = new PowerDistribution();
     private final Elevator elevator = new Elevator();
     private final Intake intake = new Intake();
@@ -41,7 +42,6 @@ public class RobotContainer {
         differentialConfig.ROBOT_WIDTH = 0.762;
         differentialConfig.MAX_SPEED = 3;
         differentialConfig.MAX_ANGULAR_VELOCITY = Math.PI;
-        differentialConfig.GEAR_RATIO = 1;
         differentialConfig.WHEEL_RADIUS = 0.0762;
 
         differentialConfig.leftLeader = 1;
@@ -60,8 +60,8 @@ public class RobotContainer {
         differentialConfig.gyro = 0;
 
         differentialConfig.pidController = new PIDController(0.1, 0.002, 0.5);
-        differentialConfig.headingController = new PIDController(0.4, 0.01, 0.01);
-        differentialConfig.headingController.setIZone(Math.PI / 4);
+        differentialConfig.headingController = new PIDController(0.5, 0.025, 0.2);
+        differentialConfig.headingController.setIZone(Math.PI / 8);
 
         this.drivetrain = new Differential(differentialConfig, new Pose2d()); // TODO: Set initial pose
 
@@ -76,14 +76,12 @@ public class RobotContainer {
         autoChooser = PathPlanner.getInstance().buildAutoChooser();
         SmartDashboard.putData("Auto Chooser", autoChooser);
 
-        try (var camera = CameraServer.startAutomaticCapture()) {
-            camera.setExposureAuto();
-            camera.setWhiteBalanceAuto();
-        }
-        //CameraServer.startAutomaticCapture()
+        // Start the camera server
+        // Disable the warning
+        //noinspection resource
+        CameraServer.startAutomaticCapture();
 
-        // TODO
-        //this.limelight = new Limelight(drivetrain);
+        this.limelight = new Limelight(drivetrain);
     }
 
     /**
@@ -96,11 +94,11 @@ public class RobotContainer {
         this.driver.a().onTrue(this.outtake.getSwitchOuttakeStateCommand());
         this.driver.b().onTrue(this.intake.getIntakeCommand()).onFalse(this.intake.getStopCommand());
         this.driver.x().onTrue(this.intake.getOuttakeCommand()).onFalse(this.intake.getStopCommand());
-        this.driver.y().onTrue(Commands.none());
+        this.driver.y().onTrue(Commands.runOnce(this.elevator::tryGoDown));
         this.driver.leftBumper().onTrue(Commands.none());
         this.driver.rightBumper().onChange(Commands.runOnce(this::toggleDirectAngle));
-        this.driver.start().onTrue(Commands.runOnce(this::zeroHeading));
-        this.driver.back().onTrue(this.outtake.getSwitchUpStateCommand());
+        this.driver.back().onTrue(Commands.runOnce(this::zeroHeading));
+        this.driver.start().onTrue(this.outtake.getSwitchUpStateCommand());
     }
 
     private void setDriveCommand() {
@@ -127,7 +125,7 @@ public class RobotContainer {
           Clone's the angular velocity input stream and converts it to a direct angle input stream.
          */
         var directAngleInput = new Differential.InputStream(this.drivetrain, velocitySupplier).heading(
-                new Rotation2dSupplier(() -> -this.driver.getRightY(), () -> -this.driver.getRightX())).deadband(0.05);
+                new Rotation2dSupplier(() -> -this.driver.getLeftY(), () -> -this.driver.getLeftX())).deadband(0.05);
 
         /*
           Direct angle input can only be used in field centric mode.

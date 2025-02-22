@@ -2,7 +2,6 @@ package frc.robot.subsystem;
 
 import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
-import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
@@ -19,14 +18,17 @@ public class Elevator extends SubsystemBase {
     TalonSRXMotor elevatorRightFollower2 = new TalonSRXMotor(8);
     DigitalInput limitSwitch = new DigitalInput(0);
     Position targetPosition;
+    boolean hasResetToZero = false;
 
     public Elevator() {
         this.elevatorLeftLeader.factoryDefault();
         this.elevatorLeftFollower.factoryDefault();
         this.elevatorRightFollower1.factoryDefault();
         this.elevatorRightFollower2.factoryDefault();
-        this.elevatorLeftLeader.setMotionMagicConfig(0.1, 0, 0, 0.01, Units.RadiansPerSecond.of(Math.PI),
-                Units.RadiansPerSecondPerSecond.of(Math.PI), 3);
+        this.elevatorLeftLeader.setMotionMagicConfig(0.1, 0.005, 1, 0.125, Units.RadiansPerSecond.of(12 * Math.PI),
+                Units.RadiansPerSecondPerSecond.of(12 * Math.PI), 3);
+        this.elevatorLeftLeader.setMaxIntergralAccum(27500);
+        this.elevatorLeftLeader.setPeakOutput(0.5);
 
         this.elevatorLeftLeader.setInverted(false);
         this.elevatorLeftLeader.setPhase(false);
@@ -38,6 +40,7 @@ public class Elevator extends SubsystemBase {
         this.elevatorLeftLeader.shutdown();
         Timer.delay(3);
         this.elevatorLeftLeader.brake();
+        this.elevatorLeftLeader.setBrakeMode(true);
         this.elevatorLeftLeader.resetPosition();
         this.targetPosition = null;
     }
@@ -45,13 +48,15 @@ public class Elevator extends SubsystemBase {
     @Override
     public void periodic() {
         if (this.atBottom()) {
+            this.elevatorLeftLeader.brake();
             this.elevatorLeftLeader.resetPosition();
+            this.hasResetToZero = true;
         }
-        if (this.targetPosition != null) {
+        if (!this.hasResetToZero) {
+            this.elevatorLeftLeader.power(-0.1);
+        } else if (this.targetPosition != null) {
             double feedforward = this.getFeedforward(this.targetPosition);
             this.elevatorLeftLeader.MotionMagic(this.targetPosition.getSensorPosition(), feedforward);
-        } else {
-            this.elevatorLeftLeader.shutdown();
         }
     }
 
@@ -59,31 +64,18 @@ public class Elevator extends SubsystemBase {
         this.targetPosition = position;
     }
 
-    public void moveTo(Distance height) {
-        this.moveTo(new Position(height));
-    }
-
-    public void moveTo(double heightInMeters) {
-        this.moveTo(new Position(heightInMeters));
-    }
-
     private double getFeedforward(Position position) {
         return this.getFeedforward(position.sensorPosition);
     }
 
     private double getFeedforward(Angle sensorPosition) {
-        //TODO: measure feedforward
+        // Our elevator doesn't have a constant feedforward, so we just return 0.
         return 0;
     }
 
     public void brake() {
         this.elevatorLeftLeader.brake();
         this.targetPosition = this.getPosition();
-    }
-
-    public void shutdown() {
-        this.elevatorLeftLeader.shutdown();
-        this.targetPosition = null;
     }
 
     public Position getPosition() {
@@ -103,17 +95,16 @@ public class Elevator extends SubsystemBase {
         builder.setSmartDashboardType("Elevator");
         builder.setActuator(true);
         builder.setSafeState(this::brake);
-        builder.addDoubleProperty("Position", () -> this.getPosition().getHeight().in(Units.Meters), this::moveTo);
+        builder.addDoubleProperty("Position", () -> this.hasResetToZero ? this.getPosition().getSensorPosition().in(Units.Radians) : -1, (position) -> this.moveTo(new Position(Units.Radians.of(position))));
         builder.addBooleanProperty("At Bottom", this::atBottom, null);
         SmartDashboard.putData("Move to Bottom", this.getMoveCommand(Level.BOTTOM.position));
         SmartDashboard.putData("Move to L1", this.getMoveCommand(Level.L1.position));
+        SmartDashboard.putData("Ball L2", this.getMoveCommand(Level.L2B.position));
         SmartDashboard.putData("Move to L2", this.getMoveCommand(Level.L2.position));
         SmartDashboard.putData("Move to L3", this.getMoveCommand(Level.L3.position));
+        SmartDashboard.putData("Ball L3", this.getMoveCommand(Level.L3B.position));
         SmartDashboard.putData("Move to L4", this.getMoveCommand(Level.L4.position));
         SmartDashboard.putData("Reset", Commands.runOnce(this::reset).ignoringDisable(true));
-        SmartDashboard.putData("run", runOnce(() -> {
-            this.elevatorLeftLeader.power(0.2);
-        }));
     }
 
     public void reset() {
@@ -121,39 +112,29 @@ public class Elevator extends SubsystemBase {
         this.targetPosition = null;
     }
 
+    public void tryGoDown() {
+        this.hasResetToZero = false;
+    }
+
     enum Level {
-        BOTTOM(0), L1(0.5), L2(1), L3(1.5), L4(1.8);
+        BOTTOM(0), L1(10), L2(10), L2B(30.6), L3(35.2), L3B(50.6), L4(63.2);
 
         private final Position position;
 
-        Level(double heightInMeters) {
-            this.position = new Position(heightInMeters);
+        Level(double sensorPosition) {
+            this.position = new Position(Units.Radians.of(sensorPosition));
         }
     }
 
     public static class Position {
-        private static final double SENSOR_ROTATION_TO_METER_RATIO = 1; //TODO
-
         private final Angle sensorPosition;
 
         public Position(Angle sensorPosition) {
             this.sensorPosition = sensorPosition;
         }
 
-        public Position(Distance height) {
-            this.sensorPosition = Units.Rotations.of(height.in(Units.Meters) / SENSOR_ROTATION_TO_METER_RATIO);
-        }
-
-        public Position(double heightInMeters) {
-            this.sensorPosition = Units.Rotations.of(heightInMeters / SENSOR_ROTATION_TO_METER_RATIO);
-        }
-
         private Angle getSensorPosition() {
             return sensorPosition;
-        }
-
-        public Distance getHeight() {
-            return Units.Meters.of(getSensorPosition().in(Units.Rotations) * SENSOR_ROTATION_TO_METER_RATIO);
         }
     }
 }

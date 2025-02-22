@@ -18,7 +18,7 @@ import frc.libzodiac.util.CommandUtil;
  */
 public class Robot extends TimedRobot {
     private final RobotContainer bot;
-    private final Timer disabledTimer;
+    private final Timer disabledTimer = new Timer();
     private Command autonomousCommand;
 
     /**
@@ -29,7 +29,6 @@ public class Robot extends TimedRobot {
         // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
         // autonomous chooser on the dashboard.
         this.bot = new RobotContainer();
-        this.disabledTimer = new Timer();
     }
 
     @Override

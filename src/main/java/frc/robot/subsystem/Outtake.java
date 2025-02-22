@@ -20,7 +20,7 @@ public class Outtake {
         this.outtakeMotor.setPID(0.1, 0, 0);
 
         this.close();
-        this.down();
+        this.up();
     }
 
     public void open() {
