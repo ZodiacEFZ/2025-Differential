@@ -45,6 +45,16 @@ public class Elevator extends SubsystemBase {
         this.targetPosition = null;
     }
 
+    private static Position getMovablePosition(Position target) {//Limits
+        if (target.getSensorPosition().in(Units.Radians) > Level.L4.position.getSensorPosition().in(Units.Radians)) {
+            return Level.L4.position;
+        }
+        if (target.getSensorPosition().in(Units.Radians) < 0) {
+            return new Position(Units.Radians.of(0));
+        }
+        return target;
+    }
+
     @Override
     public void periodic() {
         if (this.atBottom()) {
@@ -62,6 +72,10 @@ public class Elevator extends SubsystemBase {
 
     public void moveTo(Position position) {
         this.targetPosition = position;
+    }
+
+    public void moveTo(Level level) {
+        this.moveTo(level.position);
     }
 
     private double getFeedforward(Position position) {
@@ -91,17 +105,13 @@ public class Elevator extends SubsystemBase {
         var target = new Position(this.getPosition().getSensorPosition().minus(Units.Radians.of(5)));
         return runOnce(() -> this.moveTo(getMovablePosition(target)));
     }
-    private static Position getMovablePosition(Position target) {//Limits
-        if(target.getSensorPosition().in(Units.Radians)>Level.L4.position.getSensorPosition().in(Units.Radians)) {
-            return Level.L4.position;
-        }
-        if(target.getSensorPosition().in(Units.Radians)<0){
-            return new Position(Units.Radians.of(0));
-        }
-        return target;
-    }
+
     public Command getMoveCommand(Position position) {
         return runOnce(() -> this.moveTo(position));
+    }
+
+    public Command getMoveCommand(Level level) {
+        return runOnce(() -> this.moveTo(level));
     }
 
     public boolean atBottom() {
@@ -115,13 +125,13 @@ public class Elevator extends SubsystemBase {
         builder.setSafeState(this::brake);
         builder.addDoubleProperty("Position", () -> this.hasResetToZero ? this.getPosition().getSensorPosition().in(Units.Radians) : -1, (position) -> this.moveTo(new Position(Units.Radians.of(position))));
         builder.addBooleanProperty("At Bottom", this::atBottom, null);
-        SmartDashboard.putData("Move to Bottom", this.getMoveCommand(Level.BOTTOM.position));
-        SmartDashboard.putData("Move to L1", this.getMoveCommand(Level.L1.position));
-        SmartDashboard.putData("Ball L2", this.getMoveCommand(Level.L2B.position));
-        SmartDashboard.putData("Move to L2", this.getMoveCommand(Level.L2.position));
-        SmartDashboard.putData("Move to L3", this.getMoveCommand(Level.L3.position));
-        SmartDashboard.putData("Ball L3", this.getMoveCommand(Level.L3B.position));
-        SmartDashboard.putData("Move to L4", this.getMoveCommand(Level.L4.position));
+        SmartDashboard.putData("Move to Bottom", this.getMoveCommand(Level.BOTTOM));
+        SmartDashboard.putData("Move to L1", this.getMoveCommand(Level.L1));
+        SmartDashboard.putData("Ball L2", this.getMoveCommand(Level.L2B));
+        SmartDashboard.putData("Move to L2", this.getMoveCommand(Level.L2));
+        SmartDashboard.putData("Move to L3", this.getMoveCommand(Level.L3));
+        SmartDashboard.putData("Ball L3", this.getMoveCommand(Level.L3B));
+        SmartDashboard.putData("Move to L4", this.getMoveCommand(Level.L4));
         SmartDashboard.putData("Reset", Commands.runOnce(this::reset).ignoringDisable(true));
     }
 
@@ -133,15 +143,8 @@ public class Elevator extends SubsystemBase {
     public void tryGoDown() {
         this.hasResetToZero = false;
     }
-    
-    public Command moveToBottom() {return runOnce(() -> this.moveTo(Level.BOTTOM.position));}
-    public Command moveToL1() {return runOnce(() -> this.moveTo(Level.L1.position));}
-    public Command moveToL2() {return runOnce(() -> this.moveTo(Level.L2.position));}
-    public Command BallL2() {return runOnce(() -> this.moveTo(Level.L2B.position));}
-    public Command moveToL3() {return runOnce(() -> this.moveTo(Level.L3.position));}
-    public Command BallL3() {return runOnce(() -> this.moveTo(Level.L3B.position));}
-    public Command moveToL4() {return runOnce(() -> this.moveTo(Level.L4.position));}
-    enum Level {
+
+    public enum Level {
         BOTTOM(0), L1(10), L2(10), L2B(30.6), L3(35.2), L3B(50.6), L4(63.2);
 
         private final Position position;

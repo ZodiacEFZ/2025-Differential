@@ -101,7 +101,6 @@ public class RobotContainer {
         this.controller.b().onTrue(this.intake.getIntakeCommand()).onFalse(this.intake.getStopCommand());
         this.controller.x().onTrue(this.intake.getOuttakeCommand()).onFalse(this.intake.getStopCommand());
         this.controller.y().onTrue(this.outtake.getSwitchUpStateCommand());
-        this.controller.leftBumper().onTrue(this.elevator.moveToBottom());
         this.controller.povUp().onTrue(this.elevator.getMoveUpCommand());
         this.controller.povDown().onTrue(this.elevator.getMoveDownCommand());
         this.controller.povLeft().onTrue(Commands.runOnce(this.elevator::tryGoDown));
