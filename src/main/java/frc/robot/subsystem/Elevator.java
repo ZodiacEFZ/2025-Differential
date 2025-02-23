@@ -82,6 +82,24 @@ public class Elevator extends SubsystemBase {
         return new Position(this.elevatorLeftLeader.getPosition());
     }
 
+    public Command getMoveUpCommand() {//Elevator up by 5(pos)
+        var target = new Position(this.getPosition().getSensorPosition().plus(Units.Radians.of(5)));
+        return runOnce(() -> this.moveTo(getMovablePosition(target)));
+    }
+
+    public Command getMoveDownCommand() {//Elevator down by 5(pos)
+        var target = new Position(this.getPosition().getSensorPosition().minus(Units.Radians.of(5)));
+        return runOnce(() -> this.moveTo(getMovablePosition(target)));
+    }
+    private static Position getMovablePosition(Position target) {//Limits
+        if(target.getSensorPosition().in(Units.Radians)>Level.L4.position.getSensorPosition().in(Units.Radians)) {
+            return Level.L4.position;
+        }
+        if(target.getSensorPosition().in(Units.Radians)<0){
+            return new Position(Units.Radians.of(0));
+        }
+        return target;
+    }
     public Command getMoveCommand(Position position) {
         return runOnce(() -> this.moveTo(position));
     }
@@ -115,7 +133,14 @@ public class Elevator extends SubsystemBase {
     public void tryGoDown() {
         this.hasResetToZero = false;
     }
-
+    
+    public Command moveToBottom() {return runOnce(() -> this.moveTo(Level.BOTTOM.position));}
+    public Command moveToL1() {return runOnce(() -> this.moveTo(Level.L1.position));}
+    public Command moveToL2() {return runOnce(() -> this.moveTo(Level.L2.position));}
+    public Command BallL2() {return runOnce(() -> this.moveTo(Level.L2B.position));}
+    public Command moveToL3() {return runOnce(() -> this.moveTo(Level.L3.position));}
+    public Command BallL3() {return runOnce(() -> this.moveTo(Level.L3B.position));}
+    public Command moveToL4() {return runOnce(() -> this.moveTo(Level.L4.position));}
     enum Level {
         BOTTOM(0), L1(10), L2(10), L2B(30.6), L3(35.2), L3B(50.6), L4(63.2);
 

@@ -95,7 +95,9 @@ public class RobotContainer {
         this.driver.b().onTrue(this.intake.getIntakeCommand()).onFalse(this.intake.getStopCommand());
         this.driver.x().onTrue(this.intake.getOuttakeCommand()).onFalse(this.intake.getStopCommand());
         this.driver.y().onTrue(Commands.runOnce(this.elevator::tryGoDown));
-        this.driver.leftBumper().onTrue(Commands.none());
+        this.driver.leftBumper().onTrue(this.elevator.moveToBottom());
+        this.driver.povUp().onTrue(this.elevator.getMoveUpCommand());
+        this.driver.povDown().onTrue(this.elevator.getMoveDownCommand());
         this.driver.rightBumper().onChange(Commands.runOnce(this::toggleDirectAngle));
         this.driver.back().onTrue(Commands.runOnce(this::zeroHeading));
         this.driver.start().onTrue(this.outtake.getSwitchUpStateCommand());
