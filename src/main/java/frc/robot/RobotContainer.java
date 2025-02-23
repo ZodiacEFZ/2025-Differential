@@ -27,6 +27,8 @@ import java.util.function.DoubleSupplier;
 public class RobotContainer {
     // The driver's controller
     private final CommandXboxController driver = new CommandXboxController(0);
+    // The driver's second controller
+    private final CommandXboxController controller = new CommandXboxController(1);
     // The robot's subsystems
     private final Differential drivetrain;
     private final Limelight limelight;
@@ -91,16 +93,18 @@ public class RobotContainer {
      * {@link JoystickButton}.
      */
     private void configureButtonBindings() {
-        this.driver.a().onTrue(this.outtake.getSwitchOuttakeStateCommand());
-        this.driver.b().onTrue(this.intake.getIntakeCommand()).onFalse(this.intake.getStopCommand());
-        this.driver.x().onTrue(this.intake.getOuttakeCommand()).onFalse(this.intake.getStopCommand());
-        this.driver.y().onTrue(Commands.runOnce(this.elevator::tryGoDown));
         this.driver.leftBumper().onChange(Commands.runOnce(this.drivetrain::toggleSlowMode));
-        this.driver.povUp().onTrue(this.elevator.getMoveUpCommand());
-        this.driver.povDown().onTrue(this.elevator.getMoveDownCommand());
         this.driver.rightBumper().onChange(Commands.runOnce(this::toggleDirectAngle));
-        this.driver.back().onTrue(Commands.runOnce(this::zeroHeading));
-        this.driver.start().onTrue(this.outtake.getSwitchUpStateCommand());
+        this.driver.a().onTrue(Commands.runOnce(this::zeroHeading));
+
+        this.controller.a().onTrue(this.outtake.getSwitchOuttakeStateCommand());
+        this.controller.b().onTrue(this.intake.getIntakeCommand()).onFalse(this.intake.getStopCommand());
+        this.controller.x().onTrue(this.intake.getOuttakeCommand()).onFalse(this.intake.getStopCommand());
+        this.controller.y().onTrue(this.outtake.getSwitchUpStateCommand());
+        this.controller.leftBumper().onTrue(this.elevator.moveToBottom());
+        this.controller.povUp().onTrue(this.elevator.getMoveUpCommand());
+        this.controller.povDown().onTrue(this.elevator.getMoveDownCommand());
+        this.controller.povLeft().onTrue(Commands.runOnce(this.elevator::tryGoDown));
     }
 
     /**
