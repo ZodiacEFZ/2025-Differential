@@ -95,7 +95,7 @@ public class RobotContainer {
         this.driver.b().onTrue(this.intake.getIntakeCommand()).onFalse(this.intake.getStopCommand());
         this.driver.x().onTrue(this.intake.getOuttakeCommand()).onFalse(this.intake.getStopCommand());
         this.driver.y().onTrue(Commands.runOnce(this.elevator::tryGoDown));
-        this.driver.leftBumper().onTrue(this.elevator.moveToBottom());
+        this.driver.leftBumper().onChange(Commands.runOnce(this.drivetrain::toggleSlowMode));
         this.driver.povUp().onTrue(this.elevator.getMoveUpCommand());
         this.driver.povDown().onTrue(this.elevator.getMoveDownCommand());
         this.driver.rightBumper().onChange(Commands.runOnce(this::toggleDirectAngle));
@@ -103,6 +103,9 @@ public class RobotContainer {
         this.driver.start().onTrue(this.outtake.getSwitchUpStateCommand());
     }
 
+    /**
+     * Set the default command for the drivetrain.
+     */
     private void setDriveCommand() {
         DoubleSupplier velocitySupplier = () -> {
             double forward = MathUtil.applyDeadband(this.driver.getRightTriggerAxis(), 0.05);
