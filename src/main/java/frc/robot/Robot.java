@@ -33,7 +33,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void driverStationConnected() {
-        CommandUtil.rumbleController(this.bot.getDriverController().getHID(), 0.5, 0.5);
+        CommandUtil.rumbleController(this.bot.getDriverJoystick().getHID(), 0.5, 0.5);
+        CommandUtil.rumbleController(this.bot.getOperatorJoystick().getHID(), 0.5, 0.5);
     }
 
     /**

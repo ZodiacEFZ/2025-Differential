@@ -28,7 +28,7 @@ public class RobotContainer {
     // The driver's controller
     private final CommandXboxController driver = new CommandXboxController(0);
     // The driver's second controller
-    private final CommandXboxController controller = new CommandXboxController(1);
+    private final CommandXboxController operator = new CommandXboxController(1);
     // The robot's subsystems
     private final Differential drivetrain;
     private final Limelight limelight;
@@ -40,6 +40,7 @@ public class RobotContainer {
     private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
+        // Configure the drivetrain
         Differential.Config differentialConfig = new Differential.Config();
         differentialConfig.ROBOT_WIDTH = 0.762;
         differentialConfig.MAX_SPEED = 3;
@@ -67,6 +68,7 @@ public class RobotContainer {
 
         this.drivetrain = new Differential(differentialConfig, new Pose2d()); // TODO: Set initial pose
 
+        // Initialize PathPlanner
         PathPlanner.initInstance(this.drivetrain);
 
         // Configure the button bindings
@@ -83,6 +85,7 @@ public class RobotContainer {
         //noinspection resource
         CameraServer.startAutomaticCapture();
 
+        // Initialize Limelight
         this.limelight = new Limelight(drivetrain);
     }
 
@@ -97,13 +100,13 @@ public class RobotContainer {
         this.driver.rightBumper().onChange(Commands.runOnce(this::toggleDirectAngle));
         this.driver.a().onTrue(Commands.runOnce(this::zeroHeading));
 
-        this.controller.a().onTrue(this.outtake.getSwitchOuttakeStateCommand());
-        this.controller.b().onTrue(this.intake.getIntakeCommand()).onFalse(this.intake.getStopCommand());
-        this.controller.x().onTrue(this.intake.getOuttakeCommand()).onFalse(this.intake.getStopCommand());
-        this.controller.y().onTrue(this.outtake.getSwitchUpStateCommand());
-        this.controller.povUp().onTrue(this.elevator.getMoveUpCommand());
-        this.controller.povDown().onTrue(this.elevator.getMoveDownCommand());
-        this.controller.povLeft().onTrue(Commands.runOnce(this.elevator::tryGoDown));
+        this.operator.a().onTrue(this.outtake.getSwitchOuttakeStateCommand());
+        this.operator.b().onTrue(this.intake.getIntakeCommand()).onFalse(this.intake.getStopCommand());
+        this.operator.x().onTrue(this.intake.getOuttakeCommand()).onFalse(this.intake.getStopCommand());
+        this.operator.y().onTrue(this.outtake.getSwitchUpStateCommand());
+        this.operator.povUp().onTrue(this.elevator.getMoveUpCommand());
+        this.operator.povDown().onTrue(this.elevator.getMoveDownCommand());
+        this.operator.povLeft().onTrue(Commands.runOnce(this.elevator::tryGoDown));
     }
 
     /**
@@ -142,11 +145,17 @@ public class RobotContainer {
                 this.drivetrain::getDirectAngle));
     }
 
+    /**
+     * Zero the heading of the robot.
+     */
     private void zeroHeading() {
         this.drivetrain.zeroHeading();
         CommandUtil.rumbleController(this.driver.getHID(), 0.5, 0.5);
     }
 
+    /**
+     * Toggle direct angle mode.
+     */
     public void toggleDirectAngle() {
         this.drivetrain.toggleDirectAngle();
         CommandUtil.rumbleController(this.driver.getHID(), 0.5, 0.5);
@@ -161,10 +170,18 @@ public class RobotContainer {
         return this.autoChooser.getSelected();
     }
 
+    /**
+     * Set the motor brake mode.
+     *
+     * @param brake whether to brake the motors
+     */
     public void setMotorBrake(boolean brake) {
         this.drivetrain.setMotorBrake(brake);
     }
 
+    /**
+     * Update the dashboard.
+     */
     public void updateDashboard() {
         SmartDashboard.putNumber("Match Time", DriverStation.getMatchTime());
         SmartDashboard.putNumber("Voltage", this.powerDistribution.getVoltage());
@@ -173,7 +190,21 @@ public class RobotContainer {
         SmartDashboard.putData("Elevator", this.elevator);
     }
 
-    public CommandXboxController getDriverController() {
+    /**
+     * Get the driver's controller.
+     *
+     * @return the driver's controller
+     */
+    public CommandXboxController getDriverJoystick() {
         return this.driver;
+    }
+
+    /**
+     * Get the operator's controller.
+     *
+     * @return the operator's controller
+     */
+    public CommandXboxController getOperatorJoystick() {
+        return this.operator;
     }
 }

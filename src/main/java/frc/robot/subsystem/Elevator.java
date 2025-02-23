@@ -12,22 +12,29 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.libzodiac.hardware.TalonSRXMotor;
 
 public class Elevator extends SubsystemBase {
+    // The elevator motors.
     TalonSRXMotor elevatorLeftLeader = new TalonSRXMotor(5);
     TalonSRXMotor elevatorLeftFollower = new TalonSRXMotor(6);
     TalonSRXMotor elevatorRightFollower1 = new TalonSRXMotor(7);
     TalonSRXMotor elevatorRightFollower2 = new TalonSRXMotor(8);
+
+    // The bottom limit switch.
     DigitalInput limitSwitch = new DigitalInput(0);
+
+    // The target position of the elevator.
     Position targetPosition;
+    // Whether the elevator has reset to zero.
     boolean hasResetToZero = false;
 
     public Elevator() {
+        // Configure the elevator motors.
         this.elevatorLeftLeader.factoryDefault();
         this.elevatorLeftFollower.factoryDefault();
         this.elevatorRightFollower1.factoryDefault();
         this.elevatorRightFollower2.factoryDefault();
         this.elevatorLeftLeader.setMotionMagicConfig(0.1, 0.005, 1, 0.125, Units.RadiansPerSecond.of(12 * Math.PI),
                 Units.RadiansPerSecondPerSecond.of(12 * Math.PI), 3);
-        this.elevatorLeftLeader.setMaxIntergralAccum(27500);
+        this.elevatorLeftLeader.setMaxIntegralAccum(27500);
         this.elevatorLeftLeader.setPeakOutput(0.5);
 
         this.elevatorLeftLeader.setInverted(false);
@@ -37,15 +44,20 @@ public class Elevator extends SubsystemBase {
         this.elevatorRightFollower1.follow(elevatorLeftFollower, true);
         this.elevatorRightFollower2.follow(elevatorLeftLeader, true);
 
-        this.elevatorLeftLeader.shutdown();
-        Timer.delay(3);
-        this.elevatorLeftLeader.brake();
         this.elevatorLeftLeader.setBrakeMode(true);
+
+        // Reset the elevator position.
         this.elevatorLeftLeader.resetPosition();
         this.targetPosition = null;
     }
 
-    private static Position getMovablePosition(Position target) {//Limits
+    /**
+     * Get the target position that is within the limits.
+     *
+     * @param target the original target position
+     * @return the target position that is within the limits
+     */
+    private static Position getMovablePosition(Position target) {
         if (target.getSensorPosition().in(Units.Radians) > Level.L4.position.getSensorPosition().in(Units.Radians)) {
             return Level.L4.position;
         }
@@ -70,50 +82,107 @@ public class Elevator extends SubsystemBase {
         }
     }
 
+    /**
+     * Move the elevator to the specific position.
+     *
+     * @param position the target position
+     */
     public void moveTo(Position position) {
         this.targetPosition = position;
     }
 
+    /**
+     * Move the elevator to the specific position.
+     *
+     * @param level the target level
+     */
     public void moveTo(Level level) {
         this.moveTo(level.position);
     }
 
+    /**
+     * Get the feedforward of the elevator.
+     *
+     * @param position the target position
+     * @return the feedforward
+     */
     private double getFeedforward(Position position) {
         return this.getFeedforward(position.sensorPosition);
     }
 
+    /**
+     * Get the feedforward of the elevator.
+     *
+     * @param sensorPosition the target position
+     * @return the feedforward
+     */
     private double getFeedforward(Angle sensorPosition) {
         // Our elevator doesn't have a constant feedforward, so we just return 0.
         return 0;
     }
 
+    /**
+     * Brake the elevator.
+     */
     public void brake() {
         this.elevatorLeftLeader.brake();
         this.targetPosition = this.getPosition();
     }
 
+    /**
+     * Get the current position of the elevator.
+     *
+     * @return the current position of the elevator
+     */
     public Position getPosition() {
         return new Position(this.elevatorLeftLeader.getPosition());
     }
 
-    public Command getMoveUpCommand() {//Elevator up by 5(pos)
+    /**
+     * Get the command that moves the elevator up.
+     *
+     * @return the command that moves the elevator up
+     */
+    public Command getMoveUpCommand() {
         var target = new Position(this.getPosition().getSensorPosition().plus(Units.Radians.of(5)));
         return runOnce(() -> this.moveTo(getMovablePosition(target)));
     }
 
-    public Command getMoveDownCommand() {//Elevator down by 5(pos)
+    /**
+     * Get the command that moves the elevator down.
+     *
+     * @return the command that moves the elevator down
+     */
+    public Command getMoveDownCommand() {
         var target = new Position(this.getPosition().getSensorPosition().minus(Units.Radians.of(5)));
         return runOnce(() -> this.moveTo(getMovablePosition(target)));
     }
 
+    /**
+     * Get the command that moves the elevator to the specific position.
+     *
+     * @param position the target position
+     * @return the command that moves the elevator to the specific position
+     */
     public Command getMoveCommand(Position position) {
         return runOnce(() -> this.moveTo(position));
     }
 
+    /**
+     * Get the command that moves the elevator to the specific position.
+     *
+     * @param level the target level
+     * @return the command that moves the elevator to the specific position
+     */
     public Command getMoveCommand(Level level) {
         return runOnce(() -> this.moveTo(level));
     }
 
+    /**
+     * Get whether the elevator is at the bottom.
+     *
+     * @return whether the elevator is at the bottom
+     */
     public boolean atBottom() {
         return !this.limitSwitch.get();
     }
@@ -135,32 +204,60 @@ public class Elevator extends SubsystemBase {
         SmartDashboard.putData("Reset", Commands.runOnce(this::reset).ignoringDisable(true));
     }
 
+    /**
+     * Reset the elevator.
+     */
     public void reset() {
         this.elevatorLeftLeader.resetPosition();
         this.targetPosition = null;
     }
 
+    /**
+     * Try to go down to the bottom.
+     */
     public void tryGoDown() {
         this.hasResetToZero = false;
     }
 
+    /**
+     * The predefined levels of the elevator.
+     */
     public enum Level {
         BOTTOM(0), L1(10), L2(10), L2B(30.6), L3(35.2), L3B(50.6), L4(63.2);
 
+        // The position of the level.
         private final Position position;
 
+        /**
+         * Construct a new Level.
+         *
+         * @param sensorPosition the sensor position of the level
+         */
         Level(double sensorPosition) {
             this.position = new Position(Units.Radians.of(sensorPosition));
         }
     }
 
+    /**
+     * The position of the elevator.
+     */
     public static class Position {
+        // The sensor position of motor.
         private final Angle sensorPosition;
 
+        /**
+         * Construct a new Position.
+         * @param sensorPosition the sensor position of motor
+         */
         public Position(Angle sensorPosition) {
             this.sensorPosition = sensorPosition;
         }
 
+        /**
+         * Get the sensor position.
+         *
+         * @return the sensor position
+         */
         private Angle getSensorPosition() {
             return sensorPosition;
         }
