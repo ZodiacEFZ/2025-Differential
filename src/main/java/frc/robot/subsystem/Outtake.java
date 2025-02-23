@@ -33,8 +33,8 @@ public class Outtake {
      * Open the outtake.
      */
     public void open() {
-        this.leftServo.set(0.1);
-        this.rightServo.set(0.95);
+        this.leftServo.set(0.05);
+        this.rightServo.set(0.55);
         this.isOpen = true;
     }
 
@@ -42,8 +42,8 @@ public class Outtake {
      * Close the outtake.
      */
     public void close() {
-        this.leftServo.set(0.7);
-        this.rightServo.set(0.35);
+        this.leftServo.set(0.6);
+        this.rightServo.set(0);
         this.isOpen = false;
     }
 
@@ -89,7 +89,7 @@ public class Outtake {
      * Move the outtake up.
      */
     public void up() {
-        runOnce(() -> this.outtakeMotor.power(0.3)).repeatedly().withTimeout(1).finallyDo(this.outtakeMotor::brake).schedule();
+        runOnce(() -> this.outtakeMotor.power(-0.3)).repeatedly().withTimeout(1).finallyDo(this.outtakeMotor::brake).schedule();
         isUp = true;
     }
 
@@ -97,7 +97,7 @@ public class Outtake {
      * Move the outtake down.
      */
     public void down() {
-        runOnce(() -> this.outtakeMotor.power(-0.3)).repeatedly().withTimeout(0.3).finallyDo(this.outtakeMotor::brake).schedule();
+        runOnce(() -> this.outtakeMotor.power(0.3)).repeatedly().withTimeout(0.5).finallyDo(this.outtakeMotor::brake).schedule();
         isUp = false;
     }
 

@@ -4,7 +4,6 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.util.sendable.SendableBuilder;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -32,10 +31,11 @@ public class Elevator extends SubsystemBase {
         this.elevatorLeftFollower.factoryDefault();
         this.elevatorRightFollower1.factoryDefault();
         this.elevatorRightFollower2.factoryDefault();
-        this.elevatorLeftLeader.setMotionMagicConfig(0.1, 0.005, 1, 0.125, Units.RadiansPerSecond.of(12 * Math.PI),
-                Units.RadiansPerSecondPerSecond.of(12 * Math.PI), 3);
+        this.elevatorLeftLeader.setMotionMagicConfig(0.1, 0.005, 1, 0.125, Units.RadiansPerSecond.of(16 * Math.PI),
+                Units.RadiansPerSecondPerSecond.of(16 * Math.PI), 3);
         this.elevatorLeftLeader.setMaxIntegralAccum(27500);
         this.elevatorLeftLeader.setPeakOutput(0.5);
+        this.elevatorLeftLeader.allowableError(200);
 
         this.elevatorLeftLeader.setInverted(false);
         this.elevatorLeftLeader.setPhase(false);
@@ -69,13 +69,16 @@ public class Elevator extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (this.atBottom()) {
-            this.elevatorLeftLeader.brake();
+        if (this.getAtBottomState()) {
+            if (this.hasResetToZero) {
+                this.elevatorLeftLeader.brake();
+            }
             this.elevatorLeftLeader.resetPosition();
             this.hasResetToZero = true;
         }
         if (!this.hasResetToZero) {
-            this.elevatorLeftLeader.power(-0.1);
+            this.elevatorLeftLeader.power(-0.15);
+            this.targetPosition = null;
         } else if (this.targetPosition != null) {
             double feedforward = this.getFeedforward(this.targetPosition);
             this.elevatorLeftLeader.MotionMagic(this.targetPosition.getSensorPosition(), feedforward);
@@ -144,8 +147,16 @@ public class Elevator extends SubsystemBase {
      * @return the command that moves the elevator up
      */
     public Command getMoveUpCommand() {
-        var target = new Position(this.getPosition().getSensorPosition().plus(Units.Radians.of(5)));
-        return runOnce(() -> this.moveTo(getMovablePosition(target)));
+        return runOnce(() -> {
+            if (!this.hasResetToZero) {
+                return;
+            }
+            if (this.targetPosition == null) {
+                this.targetPosition = new Position(Units.Radians.of(0));
+            }
+            var targetSensorPosition = this.targetPosition.sensorPosition.plus(Units.Radians.of(5));
+            this.moveTo(getMovablePosition(new Position(targetSensorPosition)));
+        });
     }
 
     /**
@@ -154,8 +165,16 @@ public class Elevator extends SubsystemBase {
      * @return the command that moves the elevator down
      */
     public Command getMoveDownCommand() {
-        var target = new Position(this.getPosition().getSensorPosition().minus(Units.Radians.of(5)));
-        return runOnce(() -> this.moveTo(getMovablePosition(target)));
+        return runOnce(() -> {
+            if (!this.hasResetToZero) {
+                return;
+            }
+            if (this.targetPosition == null) {
+                this.targetPosition = new Position(Units.Radians.of(0));
+            }
+            var targetSensorPosition = this.targetPosition.sensorPosition.minus(Units.Radians.of(5));
+            this.moveTo(getMovablePosition(new Position(targetSensorPosition)));
+        });
     }
 
     /**
@@ -183,7 +202,7 @@ public class Elevator extends SubsystemBase {
      *
      * @return whether the elevator is at the bottom
      */
-    public boolean atBottom() {
+    public boolean getAtBottomState() {
         return !this.limitSwitch.get();
     }
 
@@ -193,7 +212,8 @@ public class Elevator extends SubsystemBase {
         builder.setActuator(true);
         builder.setSafeState(this::brake);
         builder.addDoubleProperty("Position", () -> this.hasResetToZero ? this.getPosition().getSensorPosition().in(Units.Radians) : -1, (position) -> this.moveTo(new Position(Units.Radians.of(position))));
-        builder.addBooleanProperty("At Bottom", this::atBottom, null);
+        builder.addDoubleProperty("Target Position", () -> this.targetPosition == null ? -1 : this.targetPosition.getSensorPosition().in(Units.Radians), (position) -> this.moveTo(new Position(Units.Radians.of(position))));
+        builder.addBooleanProperty("At Bottom", this::getAtBottomState, null);
         SmartDashboard.putData("Move to Bottom", this.getMoveCommand(Level.BOTTOM));
         SmartDashboard.putData("Move to L1", this.getMoveCommand(Level.L1));
         SmartDashboard.putData("Ball L2", this.getMoveCommand(Level.L2B));
@@ -223,7 +243,7 @@ public class Elevator extends SubsystemBase {
      * The predefined levels of the elevator.
      */
     public enum Level {
-        BOTTOM(0), L1(10), L2(10), L2B(30.6), L3(35.2), L3B(50.6), L4(63.2);
+        BOTTOM(0), L1(10), L2(10), L2B(30.6), L3(35.2), L3B(50.6), L4(62.6);
 
         // The position of the level.
         private final Position position;
@@ -247,6 +267,7 @@ public class Elevator extends SubsystemBase {
 
         /**
          * Construct a new Position.
+         *
          * @param sensorPosition the sensor position of motor
          */
         public Position(Angle sensorPosition) {
