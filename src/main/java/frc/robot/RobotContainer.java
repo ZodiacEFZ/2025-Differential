@@ -4,6 +4,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.XboxController;
@@ -62,7 +63,7 @@ public class RobotContainer {
 
         differentialConfig.gyro = 0;
 
-        differentialConfig.pidController = new PIDController(0.1, 0.002, 0.5);
+        differentialConfig.pidController = new PIDController(1, 0.0005, 0.02);
         differentialConfig.headingController = new PIDController(0.5, 0.025, 0.2);
         differentialConfig.headingController.setIZone(Math.PI / 8);
 
@@ -73,7 +74,8 @@ public class RobotContainer {
 
         // Configure the button bindings
         this.configureButtonBindings();
-        this.drivetrain.setDirectAngle(true);
+        this.drivetrain.setDirectAngle(false);
+        this.drivetrain.setSlowMode(true);
         this.setDriveCommand();
 
         // Build an auto chooser
@@ -103,7 +105,7 @@ public class RobotContainer {
         this.operator.a().onTrue(this.outtake.getSwitchOuttakeStateCommand());
         this.operator.b().onTrue(this.intake.getIntakeCommand()).onFalse(this.intake.getStopCommand());
         this.operator.x().onTrue(this.intake.getOuttakeCommand()).onFalse(this.intake.getStopCommand());
-        this.operator.y().onTrue(this.outtake.getSwitchUpStateCommand());
+        this.operator.y().onTrue(this.intake.getSwitchUpStateCommand());
         this.operator.povUp().onTrue(this.elevator.getMoveUpCommand());
         this.operator.povDown().onTrue(this.elevator.getMoveDownCommand());
         this.operator.povLeft().onTrue(Commands.runOnce(this.elevator::tryGoDown));
@@ -206,5 +208,29 @@ public class RobotContainer {
      */
     public CommandXboxController getOperatorJoystick() {
         return this.operator;
+    }
+
+    public Command getMoveIntakeDownCommand() {
+        return this.intake.getDownCommand();
+    }
+
+    public Command getMoveIntakeUpCommand() {
+        return this.intake.getUpCommand();
+    }
+
+    public Command getLeaveCommand() {
+        return Commands.runOnce(() -> this.drivetrain.drive(-0.2, 0), this.drivetrain).repeatedly().withTimeout(3).finallyDo(() -> this.drivetrain.drive(0, 0));
+    }
+
+    public Angle getElevatorSensorPosition() {
+        return this.elevator.getPosition().getSensorPosition();
+    }
+
+    public Angle getTargetPosition() {
+        return this.elevator.getTargetPosition().getSensorPosition();
+    }
+
+    public Command getSetDrivetrainSlowCommand(boolean slowMode) {
+        return Commands.runOnce(() -> this.drivetrain.setSlowMode(slowMode));
     }
 }

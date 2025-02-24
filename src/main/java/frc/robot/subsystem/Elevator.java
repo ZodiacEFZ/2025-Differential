@@ -9,6 +9,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.libzodiac.hardware.TalonSRXMotor;
+import frc.libzodiac.ui.Elastic;
+
+import java.util.Objects;
 
 public class Elevator extends SubsystemBase {
     // The elevator motors.
@@ -24,6 +27,7 @@ public class Elevator extends SubsystemBase {
     Position targetPosition;
     // Whether the elevator has reset to zero.
     boolean hasResetToZero = false;
+    boolean isTryingGoDown = true;
 
     public Elevator() {
         // Configure the elevator motors.
@@ -44,7 +48,7 @@ public class Elevator extends SubsystemBase {
         this.elevatorRightFollower1.follow(elevatorLeftFollower, true);
         this.elevatorRightFollower2.follow(elevatorLeftLeader, true);
 
-        this.elevatorLeftLeader.setBrakeMode(true);
+        this.elevatorLeftLeader.setBrakeWhenNeutral(true);
 
         // Reset the elevator position.
         this.elevatorLeftLeader.resetPosition();
@@ -70,18 +74,27 @@ public class Elevator extends SubsystemBase {
     @Override
     public void periodic() {
         if (this.getAtBottomState()) {
-            if (this.hasResetToZero) {
+            if (this.isTryingGoDown) {
                 this.elevatorLeftLeader.brake();
+            }
+            if (this.hasResetToZero) {
+                this.elevatorLeftLeader.setBrakeWhenNeutral(true);
             }
             this.elevatorLeftLeader.resetPosition();
             this.hasResetToZero = true;
+            this.isTryingGoDown = false;
         }
-        if (!this.hasResetToZero) {
+        if (!this.hasResetToZero && this.isTryingGoDown) {
             this.elevatorLeftLeader.power(-0.15);
             this.targetPosition = null;
         } else if (this.targetPosition != null) {
             double feedforward = this.getFeedforward(this.targetPosition);
             this.elevatorLeftLeader.MotionMagic(this.targetPosition.getSensorPosition(), feedforward);
+        }
+
+        if (this.targetPosition != null && this.getPosition().sensorPosition.lt(Level.L2.getSensorPosition()) && this.targetPosition.sensorPosition.gt(Level.L2.getSensorPosition())) {
+            var notification = new Elastic.Notification().withTitle("MOVE DOWN INTAKE").withLevel(Elastic.Notification.NotificationLevel.WARNING).withDisplaySeconds(3);
+            Elastic.sendNotification(notification);
         }
     }
 
@@ -237,13 +250,18 @@ public class Elevator extends SubsystemBase {
      */
     public void tryGoDown() {
         this.hasResetToZero = false;
+        this.isTryingGoDown = true;
+    }
+
+    public Position getTargetPosition() {
+        return Objects.requireNonNullElseGet(this.targetPosition, () -> new Position(Units.Radians.of(0)));
     }
 
     /**
      * The predefined levels of the elevator.
      */
     public enum Level {
-        BOTTOM(0), L1(10), L2(10), L2B(30.6), L3(35.2), L3B(50.6), L4(62.6);
+        BOTTOM(0), L1(0.5), L2(7.7), L2B(27), L3(27.5), L3B(48), L4(62);
 
         // The position of the level.
         private final Position position;
@@ -255,6 +273,10 @@ public class Elevator extends SubsystemBase {
          */
         Level(double sensorPosition) {
             this.position = new Position(Units.Radians.of(sensorPosition));
+        }
+
+        public Angle getSensorPosition() {
+            return this.position.sensorPosition;
         }
     }
 
@@ -279,7 +301,7 @@ public class Elevator extends SubsystemBase {
          *
          * @return the sensor position
          */
-        private Angle getSensorPosition() {
+        public Angle getSensorPosition() {
             return sensorPosition;
         }
     }
