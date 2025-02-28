@@ -76,6 +76,7 @@ public class RobotContainer {
         this.configureButtonBindings();
         this.drivetrain.setDirectAngle(false);
         this.drivetrain.setSlowMode(true);
+        this.drivetrain.setDirectPower(false);
         this.setDriveCommand();
 
         // Build an auto chooser
@@ -141,7 +142,7 @@ public class RobotContainer {
           Direct angle input can only be used in field centric mode.
          */
         this.drivetrain.setDefaultCommand(this.drivetrain.getDriveCommand(directAngleInput, angularVelocityInput,
-                this.drivetrain::getDirectAngle));
+                this.drivetrain::getDirectAngle, this.drivetrain::getDirectPower));
     }
 
     /**
