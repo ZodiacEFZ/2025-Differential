@@ -167,7 +167,7 @@ public class Elevator extends SubsystemBase {
             if (this.targetPosition == null) {
                 this.targetPosition = new Position(Units.Radians.of(0));
             }
-            var targetSensorPosition = this.targetPosition.sensorPosition.plus(Units.Radians.of(5));
+            var targetSensorPosition = this.targetPosition.sensorPosition.plus(Units.Radians.of(2));
             this.moveTo(getMovablePosition(new Position(targetSensorPosition)));
         });
     }
@@ -185,7 +185,7 @@ public class Elevator extends SubsystemBase {
             if (this.targetPosition == null) {
                 this.targetPosition = new Position(Units.Radians.of(0));
             }
-            var targetSensorPosition = this.targetPosition.sensorPosition.minus(Units.Radians.of(5));
+            var targetSensorPosition = this.targetPosition.sensorPosition.minus(Units.Radians.of(2));
             this.moveTo(getMovablePosition(new Position(targetSensorPosition)));
         });
     }
@@ -261,7 +261,7 @@ public class Elevator extends SubsystemBase {
      * The predefined levels of the elevator.
      */
     public enum Level {
-        BOTTOM(0), L1(0.5), L2(7.7), L2B(27), L3(27.5), L3B(48), L4(62);
+        BOTTOM(0), L1(0.5), L2(7.7), L2B(27), L3(27.5), L3B(48), L4(65);
 
         // The position of the level.
         private final Position position;
