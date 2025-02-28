@@ -33,7 +33,6 @@ public class RobotContainer {
     private final CommandXboxController operator = new CommandXboxController(1);
     // The robot's subsystems
     private final Differential drivetrain;
-    private final Limelight limelight;
     private final PowerDistribution powerDistribution = new PowerDistribution();
     private final Elevator elevator = new Elevator();
     private final Intake intake = new Intake();
@@ -87,9 +86,6 @@ public class RobotContainer {
         // Disable the warning
         //noinspection resource
         CameraServer.startAutomaticCapture();
-
-        // Initialize Limelight
-        this.limelight = new Limelight(drivetrain);
     }
 
     /**
@@ -220,7 +216,8 @@ public class RobotContainer {
     }
 
     public Command getLeaveCommand() {
-        return Commands.runOnce(() -> this.drivetrain.drive(-0.2, 0), this.drivetrain).repeatedly().withTimeout(3).finallyDo(() -> this.drivetrain.drive(0, 0));
+        return Commands.runOnce(() -> this.drivetrain.drive(-0.5, 0), this.drivetrain).repeatedly()
+                .withTimeout(10).finallyDo(() -> this.drivetrain.drive(0, 0));
     }
 
     public Angle getElevatorSensorPosition() {
