@@ -17,8 +17,6 @@ public class Elevator extends SubsystemBase {
     // The elevator motors.
     TalonSRXMotor elevatorLeftLeader = new TalonSRXMotor(5);
     TalonSRXMotor elevatorLeftFollower = new TalonSRXMotor(6);
-    TalonSRXMotor elevatorRightFollower1 = new TalonSRXMotor(7);
-    TalonSRXMotor elevatorRightFollower2 = new TalonSRXMotor(8);
 
     // The bottom limit switch.
     DigitalInput limitSwitch = new DigitalInput(0);
@@ -33,8 +31,6 @@ public class Elevator extends SubsystemBase {
         // Configure the elevator motors.
         this.elevatorLeftLeader.factoryDefault();
         this.elevatorLeftFollower.factoryDefault();
-        this.elevatorRightFollower1.factoryDefault();
-        this.elevatorRightFollower2.factoryDefault();
         this.elevatorLeftLeader.setMotionMagicConfig(0.1, 0.005, 1, 0.125, Units.RadiansPerSecond.of(16 * Math.PI),
                 Units.RadiansPerSecondPerSecond.of(16 * Math.PI), 3);
         this.elevatorLeftLeader.setMaxIntegralAccum(27500);
@@ -45,8 +41,6 @@ public class Elevator extends SubsystemBase {
         this.elevatorLeftLeader.setPhase(false);
 
         this.elevatorLeftFollower.follow(elevatorLeftLeader);
-        this.elevatorRightFollower1.follow(elevatorLeftFollower, true);
-        this.elevatorRightFollower2.follow(elevatorLeftLeader, true);
 
         this.elevatorLeftLeader.setBrakeWhenNeutral(true);
 
