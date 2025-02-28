@@ -61,7 +61,6 @@ public class Robot extends TimedRobot {
         if (this.autonomousCommand != null) {
             this.autonomousCommand.schedule();
         }
-        this.bot.getMoveIntakeDownCommand().schedule();
         this.bot.getLeaveCommand().schedule();
     }
 
