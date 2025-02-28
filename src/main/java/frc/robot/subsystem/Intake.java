@@ -33,7 +33,7 @@ public class Intake extends SubsystemBase {
         this.rightMotor.setPID(0.1, 0, 0);
         this.intakeMotor.setPID(0.1, 0, 0);
 
-        this.up();
+        this.isUp = true;
     }
 
     /**
@@ -111,7 +111,7 @@ public class Intake extends SubsystemBase {
      */
     public void up() {
         runOnce(() -> this.intakeMotor.power(-0.3)).repeatedly().withTimeout(1).finallyDo(this.intakeMotor::brake).schedule();
-        isUp = true;
+        this.isUp = true;
     }
 
     /**
@@ -119,7 +119,7 @@ public class Intake extends SubsystemBase {
      */
     public void down() {
         runOnce(() -> this.intakeMotor.power(0.3)).repeatedly().withTimeout(0.5).finallyDo(this.intakeMotor::brake).schedule();
-        isUp = false;
+        this.isUp = false;
     }
 
     /**
