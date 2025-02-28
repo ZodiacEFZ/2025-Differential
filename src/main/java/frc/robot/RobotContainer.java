@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.libzodiac.drivetrain.Differential;
 import frc.libzodiac.drivetrain.PathPlanner;
 import frc.libzodiac.hardware.Limelight;
+import frc.libzodiac.hardware.Pigeon;
 import frc.libzodiac.util.CommandUtil;
 import frc.libzodiac.util.Rotation2dSupplier;
 import frc.robot.subsystem.Elevator;
@@ -61,7 +62,7 @@ public class RobotContainer {
         differentialConfig.leftEncoderPhase = true;
         differentialConfig.rightEncoderPhase = true;
 
-        differentialConfig.gyro = 0;
+        differentialConfig.gyro = new Pigeon(0);
 
         differentialConfig.pidController = new PIDController(1, 0.0005, 0.02);
         differentialConfig.headingController = new PIDController(0.5, 0.025, 0.2);
