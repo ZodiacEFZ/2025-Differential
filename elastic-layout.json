@@ -44,6 +44,19 @@
                 }
               },
               {
+                "title": "Direct Power",
+                "x": 0.0,
+                "y": 0.0,
+                "width": 128.0,
+                "height": 128.0,
+                "type": "Toggle Switch",
+                "properties": {
+                  "topic": "/SmartDashboard/Drivetrain/Direct Power",
+                  "period": 0.06,
+                  "data_type": "boolean"
+                }
+              },
+              {
                 "title": "Reset Heading",
                 "x": 1152.0,
                 "y": 128.0,
@@ -286,7 +299,7 @@
             "title": "Field",
             "x": 320.0,
             "y": 0.0,
-            "width": 704.0,
+            "width": 512.0,
             "height": 384.0,
             "type": "Field",
             "properties": {
@@ -352,6 +365,34 @@
                 480.0,
                 360.0
               ]
+            }
+          },
+          {
+            "title": "Left Desired Speed",
+            "x": 832.0,
+            "y": 0.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Left Desired Speed",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
+            }
+          },
+          {
+            "title": "Right Desired Speed",
+            "x": 832.0,
+            "y": 128.0,
+            "width": 192.0,
+            "height": 128.0,
+            "type": "Text Display",
+            "properties": {
+              "topic": "/SmartDashboard/Right Desired Speed",
+              "period": 0.06,
+              "data_type": "double",
+              "show_submit_button": false
             }
           }
         ]
