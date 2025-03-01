@@ -76,7 +76,7 @@ public class RobotContainer {
         this.configureButtonBindings();
         this.drivetrain.setDirectAngle(false);
         this.drivetrain.setSlowMode(true);
-        this.drivetrain.setDirectPower(false);
+        this.drivetrain.setDirectPower(true);
         this.setDriveCommand();
 
         // Build an auto chooser
