@@ -161,7 +161,7 @@ public class Elevator extends SubsystemBase {
             if (this.targetPosition == null) {
                 this.targetPosition = new Position(Units.Radians.of(0));
             }
-            var targetSensorPosition = this.targetPosition.sensorPosition.plus(Units.Radians.of(2));
+            var targetSensorPosition = this.targetPosition.sensorPosition.plus(Units.Radians.of(1));
             this.moveTo(getMovablePosition(new Position(targetSensorPosition)));
         });
     }
@@ -179,7 +179,7 @@ public class Elevator extends SubsystemBase {
             if (this.targetPosition == null) {
                 this.targetPosition = new Position(Units.Radians.of(0));
             }
-            var targetSensorPosition = this.targetPosition.sensorPosition.minus(Units.Radians.of(2));
+            var targetSensorPosition = this.targetPosition.sensorPosition.minus(Units.Radians.of(1));
             this.moveTo(getMovablePosition(new Position(targetSensorPosition)));
         });
     }

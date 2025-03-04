@@ -219,7 +219,7 @@ public class RobotContainer {
     public Command getLeaveCommand() {
         //return Commands.runOnce(() -> this.drivetrain.drive(-0.5, 0), this.drivetrain).repeatedly()
         //        .withTimeout(10).finallyDo(() -> this.drivetrain.drive(0, 0));
-        return Commands.runOnce(() -> this.drivetrain.driveDirectPower(-0.5, 0), this.drivetrain).repeatedly().withTimeout(3).finallyDo(() -> this.drivetrain.driveDirectPower(0, 0));
+        return Commands.runOnce(() -> this.drivetrain.driveDirectPower(-0.5, -0.5), this.drivetrain).repeatedly().withTimeout(3).finallyDo(() -> this.drivetrain.driveDirectPower(0, 0));
     }
 
     public Angle getElevatorSensorPosition() {
